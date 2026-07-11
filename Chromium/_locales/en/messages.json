@@ -1,0 +1,86 @@
+{
+  "clearText": {
+    "message": "Clear"
+  },
+  "contextMenuOpenSidepanel": {
+    "message": "Open side panel"
+  },
+  "contextMenuSendCurrentPageToSidepanel": {
+    "message": "Send current page URL to side panel - Please open the side panel to view"
+  },
+  "contextMenuSendLinkToSidepanel": {
+    "message": "Send link content to side panel - Please open the side panel to view"
+  },
+  "contextMenuSendToIncognito": {
+    "message": "Send selected text to incognito window"
+  },
+  "contextMenuSendToSidepanel": {
+    "message": "Send selected text to side panel - Please open the side panel to view"
+  },
+  "currentUrlLoaded": {
+    "message": "Current page URL has been loaded"
+  },
+  "emptyTextError": {
+    "message": "Please enter text"
+  },
+  "extDescription": {
+    "message": "Send web page text or link content to the side panel, edit it, and open it in a new tab or incognito tab."
+  },
+  "extName": {
+    "message": "Send Content to Tab"
+  },
+  "fileAccessWarning": {
+    "message": "File access not enabled. To use this extension on local files, enable 'Allow access to file URLs' in chrome://extensions for this extension."
+  },
+  "getCurrentUrl": {
+    "message": "Get current page URL"
+  },
+  "incognitoDisabledHint": {
+    "message": "Extension is already running in incognito mode"
+  },
+  "incognitoWarning": {
+    "message": "Incognito access not enabled. Content from the text box will be opened in a new incognito window. To ensure it opens in an existing incognito window, enable 'Allow in incognito' in chrome://extensions for this extension."
+  },
+  "loadStagedText": {
+    "message": "Load staged text"
+  },
+  "saveStagedText": {
+    "message": "Save staged text"
+  },
+  "SendContentToSidepanel": {
+    "message": "Send selected content to side panel"
+  },
+  "SendCurrentPageToSidepanel": {
+    "message": "Send current page URL to side panel"
+  },
+  "settingsEnableContextMenu": {
+    "message": "Enable context menu"
+  },
+  "settingsEnableContextMenuDesc": {
+    "message": "Show context menu items to send selected text, links, or page URLs to the side panel or incognito window"
+  },
+  "settingsRetainText": {
+    "message": "Enable text staging"
+  },
+  "settingsRetainTextDesc": {
+    "message": "Show buttons to save and load text content in the side panel"
+  },
+  "sidePanelOpenIncognito": {
+    "message": "Open in incognito tab"
+  },
+  "sidePanelOpenTab": {
+    "message": "Open in new tab"
+  },
+  "sidePanelPlaceholder": {
+    "message": "Enter or edit text"
+  },
+  "sidePanelSettings": {
+    "message": "Settings"
+  },
+  "stagedTextLoaded": {
+    "message": "Staged text has been loaded"
+  },
+  "stagedTextSaved": {
+    "message": "Text has been saved"
+  }
+}
