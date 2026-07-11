@@ -1,0 +1,393 @@
+:root {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #f0f1f3;
+    --bg-tertiary: #e4e5e9;
+    --text-primary: #1e1e2e;
+    --text-secondary: #5a5a6e;
+    --text-muted: #8e8ea0;
+    --border-color: #d0d1d9;
+    --accent-color: #1a73e8;
+    --accent-hover: #1557b0;
+    --danger-color: #d93025;
+    --danger-hover: #b3261e;
+    --toggle-bg: #c8c9d0;
+    --toggle-active: #1a73e8;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --radius: 8px;
+    --radius-sm: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1e1e2e;
+        --bg-secondary: #2a2a3d;
+        --bg-tertiary: #363650;
+        --text-primary: #e2e2ea;
+        --text-secondary: #9d9db5;
+        --text-muted: #6e6e8a;
+        --border-color: #3e3e56;
+        --accent-color: #8ab4f8;
+        --accent-hover: #aecbfa;
+        --danger-color: #f28b82;
+        --danger-hover: #f6aea9;
+        --toggle-bg: #4a4a62;
+        --toggle-active: #8ab4f8;
+        --shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+#app {
+    padding: 12px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+textarea:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15);
+}
+
+textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--border-color);
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.settings-row {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 4px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Settings Panel */
+.settings-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-primary);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+}
+
+.settings-panel.open {
+    transform: translateX(0);
+}
+
+.settings-panel.hidden {
+    display: none;
+}
+
+.settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.settings-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.settings-content {
+    flex: 1;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    gap: 16px;
+    cursor: pointer;
+}
+
+.setting-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.setting-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.setting-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Toggle Switch */
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--toggle-bg);
+    transition: 0.3s;
+    border-radius: 20px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle input:checked + .toggle-slider {
+    background-color: var(--toggle-active);
+}
+
+.toggle input:checked + .toggle-slider:before {
+    transform: translateX(16px);
+}
+
+/* Textarea actions (get URL and clear buttons) */
+.textarea-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.textarea-actions .btn-action,
+.textarea-actions .btn-clear {
+    font-size: 12px;
+    padding: 6px 12px;
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.textarea-actions .btn-action:hover:not(:disabled) {
+    background-color: var(--bg-tertiary);
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.textarea-actions .btn-clear:hover:not(:disabled) {
+    background-color: var(--bg-tertiary);
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* Staged text buttons */
+.staged-text-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.staged-text-buttons.hidden {
+    display: none;
+}
+
+.staged-text-buttons .btn {
+    flex: 1;
+    font-size: 12px;
+    padding: 8px 12px;
+}
+
+/* Error messages */
+.empty-text-error,
+.unsupported-page-error {
+    color: var(--danger-color);
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: -8px;
+}
+
+.empty-text-error.hidden,
+.unsupported-page-error.hidden {
+    display: none;
+}
+
+/* Warning banner */
+.warning-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    background-color: rgba(217, 48, 37, 0.08);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.warning-banner svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--danger-color);
+}
+
+.warning-banner.hidden {
+    display: none;
+}
+
+/* Status message */
+.status-message {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 12px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 200;
+}
+
+.status-message.show {
+    opacity: 1;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-muted);
+}
