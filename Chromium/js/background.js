@@ -18,6 +18,7 @@
 
 const CONTEXT_MENU_IDS = {
     OPEN_SIDEPANEL: 'open-sidepanel',
+    CLOSE_SIDEPANEL: 'close-sidepanel',
     SEND_CURRENT_PAGE_TO_SIDEPANEL: 'send-current-page-to-sidepanel',
     SEND_TO_SIDEPANEL: 'send-to-sidepanel',
     SEND_LINK_TO_SIDEPANEL: 'send-link-to-sidepanel',
@@ -84,10 +85,16 @@ async function createContextMenus() {
             return;
         }
 
-        // First item: Open side panel (always visible, no page restriction)
+        // First items: Open/Close side panel (always visible, no page restriction)
         chrome.contextMenus.create({
             id: CONTEXT_MENU_IDS.OPEN_SIDEPANEL,
             title: chrome.i18n.getMessage('contextMenuOpenSidepanel'),
+            contexts: ['all'],
+            documentUrlPatterns: ['<all_urls>']
+        });
+        chrome.contextMenus.create({
+            id: CONTEXT_MENU_IDS.CLOSE_SIDEPANEL,
+            title: chrome.i18n.getMessage('contextMenuCloseSidepanel'),
             contexts: ['all'],
             documentUrlPatterns: ['<all_urls>']
         });
@@ -159,6 +166,12 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     if (menuItemId === CONTEXT_MENU_IDS.OPEN_SIDEPANEL) {
         // Open side panel - always works regardless of page support
         await chrome.sidePanel.open({ windowId: tab.windowId });
+        return;
+    }
+
+    if (menuItemId === CONTEXT_MENU_IDS.CLOSE_SIDEPANEL) {
+        // Close side panel - always works regardless of page support
+        await chrome.sidePanel.close({ windowId: tab.windowId });
         return;
     }
 
