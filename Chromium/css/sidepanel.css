@@ -17,7 +17,7 @@
     --radius-sm: 4px;
 }
 
-@media (prefers-color-scheme: dark) {
+    @media (prefers-color-scheme: dark) {
     :root {
         --bg-primary: #1e1e2e;
         --bg-secondary: #2a2a3d;
@@ -26,12 +26,12 @@
         --text-secondary: #9d9db5;
         --text-muted: #6e6e8a;
         --border-color: #3e3e56;
-        --accent-color: #8ab4f8;
-        --accent-hover: #aecbfa;
+        --accent-color: #5b8fc9;
+        --accent-hover: #7aa8db;
         --danger-color: #f28b82;
         --danger-hover: #f6aea9;
         --toggle-bg: #4a4a62;
-        --toggle-active: #8ab4f8;
+        --toggle-active: #5b8fc9;
         --shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
     }
 }
@@ -63,7 +63,7 @@ body {
 
 textarea {
     width: 100%;
-    min-height: 120px;
+    min-height: 400px;
     padding: 10px 12px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
