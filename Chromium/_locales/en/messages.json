@@ -2,6 +2,9 @@
   "clearText": {
     "message": "Clear"
   },
+  "contextMenuCloseSidepanel": {
+    "message": "Close Extension Side Panel"
+  },
   "contextMenuOpenSidepanel": {
     "message": "Open Extension Side Panel"
   },
