@@ -3,7 +3,7 @@
     "message": "Clear"
   },
   "contextMenuOpenSidepanel": {
-    "message": "Open side panel"
+    "message": "Open Extension Side Panel"
   },
   "contextMenuSendCurrentPageToSidepanel": {
     "message": "Send current page URL to side panel - Please open the side panel to view"
@@ -30,7 +30,7 @@
     "message": "Send Content to Tab"
   },
   "fileAccessWarning": {
-    "message": "File access not enabled. To use this extension on local files, enable 'Allow access to file URLs' in chrome://extensions for this extension."
+    "message": "To allow this extension to access local files, enable 'Allow access to file URLs' in chrome://extensions for this extension."
   },
   "getCurrentUrl": {
     "message": "Get current page URL"
@@ -39,7 +39,7 @@
     "message": "Extension is already running in incognito mode"
   },
   "incognitoWarning": {
-    "message": "Incognito access not enabled. Content from the text box will be opened in a new incognito window. To ensure it opens in an existing incognito window, enable 'Allow in incognito' in chrome://extensions for this extension."
+    "message": "To ensure it opens in an existing incognito window, enable 'Allow in incognito' in chrome://extensions for this extension."
   },
   "loadStagedText": {
     "message": "Load staged text"
