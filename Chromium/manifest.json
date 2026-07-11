@@ -1,0 +1,57 @@
+{
+    "author": "lslslsl06",
+    "name": "__MSG_extName__",
+    "version": "1.0",
+    "manifest_version": 3,
+    "minimum_chrome_version": "114",
+    "description": "__MSG_extDescription__",
+    "default_locale": "en",
+    "background": {
+        "service_worker": "js/background.js",
+        "type": "module"
+    },
+    "action": {},
+    "commands": {
+        "send-content-to-sidepanel": {
+            "description": "__MSG_SendContentToSidepanel__"
+        },
+        "send-current-page-to-sidepanel": {
+            "description": "__MSG_SendCurrentPageToSidepanel__"
+        }
+    },
+    "permissions": [
+        "sidePanel",
+        "contextMenus",
+        "storage",
+        "tabs"
+    ],
+    "incognito": "spanning",
+    "side_panel": {
+        "default_path": "main.html"
+    },
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "js/content.js"
+            ],
+            "run_at": "document_start",
+            "all_frames": true
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "js/utils.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
+}
