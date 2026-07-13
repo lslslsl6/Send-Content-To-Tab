@@ -1,4 +1,7 @@
 {
+  "actionOpenSidepanel": {
+    "message": "Open Extension Side Panel"
+  },
   "clearText": {
     "message": "Clear"
   },
@@ -20,6 +23,9 @@
   "contextMenuSendToSidepanel": {
     "message": "Send selected text to side panel - Please open the side panel to view"
   },
+  "copyText": {
+    "message": "Copy"
+  },
   "currentUrlLoaded": {
     "message": "Current page URL has been loaded"
   },
@@ -33,22 +39,133 @@
     "message": "Send Content to Tab"
   },
   "fileAccessWarning": {
-    "message": "To allow this extension to access local files, enable 'Allow access to file URLs' in chrome://extensions for this extension."
+    "message": "To allow this extension to access local files, enable **Allow access to file URLs** in <code>chrome://extensions</code> for this extension."
   },
   "getCurrentUrl": {
-    "message": "Get current page URL"
+    "message": "Get current URL"
+  },
+  "helpAboutThisExtension": {
+    "message": "About This Extension"
+  },
+  "helpContextMenuDesc1": {
+    "message": "For some reasons, it is not possible to design a single context menu option that can open/close the side panel with one click, so it has to be split into two separate options. If you don't want to see this, go to Settings and disable the **Enable close side panel menu** option. We apologize for this inconvenience."
+  },
+  "helpContextMenuDesc2": {
+    "message": "Additionally, after clicking any context menu option that sends content to the side panel, you need to manually open the side panel to view the content. Some unsupported websites may not be able to use the context menu options for sending content to the side panel or incognito window."
+  },
+  "helpContextMenuTitle": {
+    "message": "About the context menu"
+  },
+  "helpFeature1": {
+    "message": "Send selected text, links, or page URLs to the side panel for editing"
+  },
+  "helpFeature2": {
+    "message": "Open edited content in a new tab or incognito tab"
+  },
+  "helpFeature3": {
+    "message": "Save and load staged text content in the side panel"
+  },
+  "helpFeature4": {
+    "message": "Send selected text directly to an incognito window via the context menu"
+  },
+  "helpFeature5": {
+    "message": "Customize context menu items and other settings in the side panel"
+  },
+  "helpFeaturesTitle": {
+    "message": "Features"
+  },
+  "helpFooter": {
+    "message": "Send Content to Tab - An open source extension"
+  },
+  "helpFrequentlyAskedQuestions": {
+    "message": "Frequently Asked Questions"
+  },
+  "helpIncognitoDesc1": {
+    "message": "Without the **Allow in incognito** option enabled, whether triggered from the side panel or the context menu, the extension will always open content in a newly created incognito window. Therefore, to ensure it opens in an existing incognito window, please enable **Allow in incognito** in <code>chrome://extensions</code> for this extension."
+  },
+  "helpIncognitoDesc2": {
+    "message": "When **Allow in incognito** is enabled, after clicking the **Open in new incognito tab** button or selecting **Send selected text to incognito window** from the context menu, you notice that the existing incognito window does not immediately come to the foreground. This is expected behavior, as new incognito tab has already been opened in the background. Please check all open browser windows."
+  },
+  "helpIncognitoTitle": {
+    "message": "About opening in an incognito tab"
+  },
+  "helpPageTitle": {
+    "message": "User Guide - Send Content to Tab"
+  },
+  "helpSearchEngineDesc": {
+    "message": "By default, this extension uses Google or the browser's configured default search engine. You can enable the **Enable the custom search engine temporarily** option in the side panel settings to select a preferred search engine. Note that this feature is session-scoped to the side panel only, and the context menu **Send selected text to incognito window** will still use Google search engine for some reasons. To ensure optimal browser experience and comply with browser policies, this option is automatically disabled when the side panel is closed."
+  },
+  "helpSearchEngineTitle": {
+    "message": "About the search engine"
+  },
+  "helpSettingsDesc": {
+    "message": "You can customize the extension behavior in the side panel settings, including enabling/disabling the context menu, enabling/disabling the close side panel menu, and enabling text staging."
+  },
+  "helpSettingsTitle": {
+    "message": "Settings"
   },
   "incognitoDisabledHint": {
     "message": "Extension is already running in incognito mode"
   },
-  "incognitoWarning": {
-    "message": "To ensure it opens in an existing incognito window, enable 'Allow in incognito' in chrome://extensions for this extension."
+  "incognitoTabOpened": {
+    "message": "New incognito tab has been opened"
   },
   "loadStagedText": {
     "message": "Load staged text"
   },
+  "resetSettings": {
+    "message": "Reset Settings"
+  },
+  "resetSettingsConfirm": {
+    "message": "Confirm Reset"
+  },
+  "resetSettingsConfirmDesc": {
+    "message": "Are you sure you want to reset all settings? This action cannot be undone."
+  },
+  "resetSettingsDesc": {
+    "message": "Reset all settings to their default values."
+  },
+  "save": {
+    "message": "Save"
+  },
   "saveStagedText": {
     "message": "Save staged text"
+  },
+  "searchEngineCustom": {
+    "message": "Custom..."
+  },
+  "searchEngineCustomUrlDesc": {
+    "message": "Use {searchTerms} as placeholder for the query."
+  },
+  "searchEngineCustomUrlError": {
+    "message": "Invalid URL. Please enter a valid URL containing {searchTerms}."
+  },
+  "searchEngineCustomUrlLabel": {
+    "message": "Custom Search Engine URL"
+  },
+  "searchEngineCustomUrlSaved": {
+    "message": "Custom search engine URL has been saved"
+  },
+  "searchEngineDefault": {
+    "message": "Default (Set by the browser)"
+  },
+  "searchEngineLabel": {
+    "message": "Search with"
+  },
+  "searchEngineLoadSavedUrl": {
+    "message": "Load previously saved URL"
+  },
+  "searchEngineSessionNote": {
+    "message": "Changes to the search engine selection will persist until the side panel is closed."
+  },
+  "searchEngineSettings": {
+    "message": "Enable the custom search engine temporarily"
+  },
+  "searchEngineSettingsDesc": {
+    "message": "Choose which search engine to use when opening text as a search query."
+  },
+  "searchEngineToggleDesc": {
+    "message": "Enable to customize the search engine used when opening text as a search query."
   },
   "SendContentToSidepanel": {
     "message": "Send selected content to side panel"
@@ -56,20 +173,38 @@
   "SendCurrentPageToSidepanel": {
     "message": "Send current page URL to side panel"
   },
+  "settingsCloseSidepanelEnabled": {
+    "message": "Enable close side panel menu"
+  },
+  "settingsCloseSidepanelEnabledDesc": {
+    "message": "Show the 'Close Extension Side Panel' option in the context menu."
+  },
   "settingsEnableContextMenu": {
     "message": "Enable context menu"
   },
   "settingsEnableContextMenuDesc": {
-    "message": "Show context menu items to send selected text, links, or page URLs to the side panel or incognito window"
+    "message": "Show context menu items to send selected text, links, or page URLs to the side panel or incognito window."
+  },
+  "settingsIncognitoEnabled": {
+    "message": "Enable incognito features"
+  },
+  "settingsIncognitoEnabledDesc": {
+    "message": "Show the incognito button in the side panel and the 'Send selected text to incognito window' option in the context menu."
+  },
+  "settingsResetSuccess": {
+    "message": "All settings have been reset to defaults"
   },
   "settingsRetainText": {
     "message": "Enable text staging"
   },
   "settingsRetainTextDesc": {
-    "message": "Show buttons to save and load text content in the side panel"
+    "message": "Show buttons to save and load text content in the side panel. If disabled, the staged content will be cleared."
+  },
+  "sidePanelHelp": {
+    "message": "Help"
   },
   "sidePanelOpenIncognito": {
-    "message": "Open in incognito tab"
+    "message": "Open in new incognito tab"
   },
   "sidePanelOpenTab": {
     "message": "Open in new tab"
@@ -85,5 +220,8 @@
   },
   "stagedTextSaved": {
     "message": "Text has been saved"
+  },
+  "textCopied": {
+    "message": "Text has been copied"
   }
 }
