@@ -1,4 +1,3 @@
-
 # Send Content to Tab
 
 A extension that sends web page text or link content to the side panel, edit it, and open it in a new tab or incognito tab.
@@ -16,12 +15,13 @@ A extension that sends web page text or link content to the side panel, edit it,
 
 ## Permissions
 
-| Permission       | Reason                             |
-| ---------------- | ---------------------------------- |
-| `sidePanel`    | Display the side panel interface   |
-| `contextMenus` | Add right-click context menu items |
-| `storage`      | Save settings and staged text      |
-| `tabs`         | Get current tab URL                |
+| Permission       | Reason                                      |
+| ---------------- | ------------------------------------------- |
+| `sidePanel`    | Display the side panel interface            |
+| `contextMenus` | Add right-click context menu items          |
+| `storage`      | Save settings and staged text               |
+| `tabs`         | Get current tab URL                         |
+| `search`       | Invoke the search engine set by the browser |
 
 ## Privacy
 
