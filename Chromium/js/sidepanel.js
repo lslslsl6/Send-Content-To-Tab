@@ -21,6 +21,16 @@ function getMessage(messageName) {
     return chrome.i18n.getMessage(messageName) || messageName;
 }
 
+// Convert markdown syntax to HTML tags
+// Supports: **bold** and <code>inline code</code>
+function renderMarkdown(text) {
+    // Convert <code>...</code> first (to avoid conflicts)
+    text = text.replace(/<code>(.+?)<\/code>/g, '<code>$1</code>');
+    // Convert **bold** to <strong> tags
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    return text;
+}
+
 // Localize all elements with __MSG_ placeholders
 function localizePage() {
     document.querySelectorAll('[placeholder]').forEach(el => {
@@ -39,13 +49,28 @@ function localizePage() {
         }
     });
 
-    document.querySelectorAll('div, span, h3, label').forEach(el => {
+    document.querySelectorAll('div, span, h3, h4, label, p, button, a, .setting-note, .setting-error').forEach(el => {
         if (el.childNodes.length === 1 && el.childNodes[0].nodeType === Node.TEXT_NODE) {
             const text = el.textContent.trim();
             if (text.startsWith('__MSG_')) {
                 const msgName = text.replace('__MSG_', '').replace('__', '');
-                el.textContent = getMessage(msgName);
+                const translated = getMessage(msgName);
+                // Check if the translated text contains markdown syntax
+                if (translated.includes('**') || translated.includes('<code>')) {
+                    el.innerHTML = renderMarkdown(translated);
+                } else {
+                    el.textContent = translated;
+                }
             }
+        }
+    });
+
+    // Localize select option text
+    document.querySelectorAll('select option').forEach(el => {
+        const text = el.textContent.trim();
+        if (text.startsWith('__MSG_')) {
+            const msgName = text.replace('__MSG_', '').replace('__', '');
+            el.textContent = getMessage(msgName);
         }
     });
 }
@@ -54,24 +79,53 @@ function localizePage() {
 const textInput = document.getElementById('textInput');
 const openTabBtn = document.getElementById('openTabBtn');
 const openIncognitoBtn = document.getElementById('openIncognitoBtn');
+const helpBtn = document.getElementById('helpBtn');
+const helpPanel = document.getElementById('helpPanel');
+const closeHelpBtn = document.getElementById('closeHelpBtn');
 const settingsBtn = document.getElementById('settingsBtn');
 const settingsPanel = document.getElementById('settingsPanel');
 const closeSettingsBtn = document.getElementById('closeSettingsBtn');
 const contextMenuToggle = document.getElementById('contextMenuToggle');
+const closeSidepanelMenuToggle = document.getElementById('closeSidepanelMenuToggle');
+const closeSidepanelMenuItem = document.getElementById('closeSidepanelMenuItem');
 const retainTextToggle = document.getElementById('retainTextToggle');
-const incognitoWarning = document.getElementById('incognitoWarning');
+const incognitoToggle = document.getElementById('incognitoToggle');
+const resetSettingsItem = document.getElementById('resetSettingsItem');
+const resetSettingsConfirmArea = document.getElementById('resetSettingsConfirmArea');
+const resetSettingsConfirmBtn = document.getElementById('resetSettingsConfirmBtn');
+
 const fileAccessWarning = document.getElementById('fileAccessWarning');
 const emptyTextError = document.getElementById('emptyTextError');
 const stagedTextButtons = document.getElementById('stagedTextButtons');
 const saveStagedBtn = document.getElementById('saveStagedBtn');
 const loadStagedBtn = document.getElementById('loadStagedBtn');
 const clearTextBtn = document.getElementById('clearTextBtn');
+const copyTextBtn = document.getElementById('copyTextBtn');
 const getCurrentUrlBtn = document.getElementById('getCurrentUrlBtn');
+
+// Search engine DOM elements
+const searchEngineToggle = document.getElementById('searchEngineToggle');
+const searchEngineSettingsArea = document.getElementById('searchEngineSettingsArea');
+const searchEngineSelect = document.getElementById('searchEngineSelect');
+const customSearchEngineRow = document.getElementById('customSearchEngineRow');
+const customSearchEngineInput = document.getElementById('customSearchEngineInput');
+const customSearchEngineError = document.getElementById('customSearchEngineError');
+const saveCustomSearchUrlBtn = document.getElementById('saveCustomSearchUrlBtn');
+const savedUrlLinkRow = document.getElementById('savedUrlLinkRow');
+const savedUrlLink = document.getElementById('savedUrlLink');
 
 // State
 let isSidePanelInIncognito = false;
 let errorTimer = null;
 let retainTextEnabled = false;
+
+// Search engine state (session-only, resets when side panel is closed)
+let searchEngineEnabled = false; // Master toggle, defaults to off
+let currentSearchEngine = 'default'; // Currently selected engine in UI (may not be saved yet)
+let currentCustomSearchUrl = ''; // Currently entered custom URL in UI (may not be saved yet)
+let savedSearchEngine = 'default'; // Last confirmed engine selection
+let savedCustomSearchUrl = ''; // Last confirmed custom URL (via save button)
+
 
 // Show a brief status message at the bottom of the panel
 function showStatusMessage(message) {
@@ -114,18 +168,6 @@ async function updateStagedButtons() {
     }
 }
 
-// Check if extension has incognito access by trying to find incognito windows
-async function checkIncognitoAccess() {
-    try {
-        const windows = await chrome.windows.getAll();
-        const hasIncognitoWindows = windows.some(w => w.incognito);
-        // If we can see incognito windows, access is enabled
-        return hasIncognitoWindows;
-    } catch (e) {
-        return false;
-    }
-}
-
 // Initialize
 async function init() {
     localizePage();
@@ -136,14 +178,6 @@ async function init() {
         isSidePanelInIncognito = currentWindow.incognito === true;
     } catch (e) {
         console.error('Failed to detect window type:', e);
-    }
-
-    // Check incognito access and show warning if needed
-    if (!isSidePanelInIncognito) {
-        const hasAccess = await checkIncognitoAccess();
-        if (!hasAccess) {
-            incognitoWarning.classList.remove('hidden');
-        }
     }
 
     // Check file access and show warning only if current tab is a file:// URL
@@ -167,7 +201,34 @@ async function init() {
         console.error('Failed to load settings:', e);
     }
 
+    // Load close sidepanel menu setting
+    try {
+        const { closeSidepanelEnabled } = await chrome.storage.local.get('closeSidepanelEnabled');
+        if (closeSidepanelMenuToggle) {
+            closeSidepanelMenuToggle.checked = closeSidepanelEnabled !== false;
+        }
+    } catch (e) {
+        console.error('Failed to load close sidepanel menu setting:', e);
+    }
+
+    // Update close sidepanel menu item disabled state based on context menu toggle
+    updateCloseSidepanelMenuItemState();
+
+    // Load incognito enabled setting
+    try {
+        const { incognitoEnabled } = await chrome.storage.local.get('incognitoEnabled');
+        if (incognitoToggle) {
+            incognitoToggle.checked = incognitoEnabled === true;
+        }
+    } catch (e) {
+        console.error('Failed to load incognito setting:', e);
+    }
+
+    // Update incognito button visibility based on setting
+    updateIncognitoButtonVisibility();
+
     // Load retain text setting
+
     try {
         const { retainTextEnabled: storedRetainText } = await chrome.storage.local.get('retainTextEnabled');
         retainTextEnabled = storedRetainText === true;
@@ -197,8 +258,260 @@ async function init() {
     // Update clear button state
     updateClearButtonState();
 
+    // Initialize search engine settings (session-only, defaults to 'default')
+    initSearchEngineSettings();
+
     // Update incognito button state
     updateIncognitoButtonState();
+}
+
+// Validate custom search engine URL
+function isValidSearchUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    // Must contain {searchTerms} placeholder
+    if (!url.includes('{searchTerms}')) return false;
+    // Must be a valid URL (http or https)
+    try {
+        const testUrl = url.replace('{searchTerms}', 'test');
+        const parsed = new URL(testUrl);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch (e) {
+        return false;
+    }
+}
+
+// Initialize search engine settings (session-only, resets when side panel is closed)
+async function initSearchEngineSettings() {
+    // Reset to default every time side panel opens (session-only)
+    searchEngineEnabled = false;
+    currentSearchEngine = 'default';
+    currentCustomSearchUrl = '';
+    savedSearchEngine = 'default';
+    savedCustomSearchUrl = '';
+
+    // Load saved custom search engine URL from storage (if any)
+    try {
+        const { savedCustomSearchUrl: storedUrl } = await chrome.storage.local.get('savedCustomSearchUrl');
+        if (storedUrl) {
+            savedCustomSearchUrl = storedUrl;
+        }
+    } catch (e) {
+        console.error('Failed to load saved custom search URL:', e);
+    }
+
+    if (searchEngineToggle) {
+        searchEngineToggle.checked = false;
+    }
+    if (searchEngineSettingsArea) {
+        searchEngineSettingsArea.classList.add('hidden');
+    }
+    if (searchEngineSelect) {
+        searchEngineSelect.value = 'default';
+    }
+    if (customSearchEngineRow) {
+        customSearchEngineRow.classList.add('hidden');
+    }
+    if (customSearchEngineError) {
+        customSearchEngineError.classList.add('hidden');
+    }
+    if (saveCustomSearchUrlBtn) {
+        saveCustomSearchUrlBtn.disabled = true;
+    }
+    // Show "load saved URL" link if there's a saved custom URL
+    updateSavedUrlLinkVisibility();
+}
+
+// Update the "load saved URL" link visibility based on savedCustomSearchUrl
+function updateSavedUrlLinkVisibility() {
+    if (savedUrlLinkRow && savedCustomSearchUrl) {
+        savedUrlLinkRow.classList.remove('hidden');
+    } else if (savedUrlLinkRow) {
+        savedUrlLinkRow.classList.add('hidden');
+    }
+}
+
+// Apply saved search engine settings to UI (when opening settings panel)
+function applySavedSearchEngineSettings() {
+    currentSearchEngine = savedSearchEngine;
+    currentCustomSearchUrl = savedCustomSearchUrl;
+    searchEngineSelect.value = savedSearchEngine;
+
+    if (savedSearchEngine === 'custom') {
+        customSearchEngineRow.classList.remove('hidden');
+        if (customSearchEngineInput) {
+            customSearchEngineInput.value = savedCustomSearchUrl;
+        }
+        // If there's a saved URL, disable save button (already saved)
+        if (saveCustomSearchUrlBtn) {
+            saveCustomSearchUrlBtn.disabled = !!savedCustomSearchUrl;
+        }
+        customSearchEngineError.classList.add('hidden');
+    } else {
+        customSearchEngineRow.classList.add('hidden');
+        customSearchEngineError.classList.add('hidden');
+        if (customSearchEngineInput) {
+            customSearchEngineInput.value = '';
+        }
+        if (saveCustomSearchUrlBtn) {
+            saveCustomSearchUrlBtn.disabled = true;
+        }
+    }
+    // Update saved URL link visibility
+    updateSavedUrlLinkVisibility();
+}
+
+// Revert to saved settings if current edits are invalid/unsaved
+function revertToSavedSearchEngineSettings() {
+    // If custom is selected but URL is empty, invalid, or not saved, revert to saved
+    if (currentSearchEngine === 'custom') {
+        const url = customSearchEngineInput ? customSearchEngineInput.value.trim() : '';
+        if (!url || !isValidSearchUrl(url) || url !== savedCustomSearchUrl) {
+            // Revert to saved
+            currentSearchEngine = savedSearchEngine;
+            currentCustomSearchUrl = savedCustomSearchUrl;
+            searchEngineSelect.value = savedSearchEngine;
+
+            if (savedSearchEngine === 'custom' && savedCustomSearchUrl) {
+                customSearchEngineRow.classList.remove('hidden');
+                if (customSearchEngineInput) {
+                    customSearchEngineInput.value = savedCustomSearchUrl;
+                }
+                if (saveCustomSearchUrlBtn) {
+                    saveCustomSearchUrlBtn.disabled = true;
+                }
+                customSearchEngineError.classList.add('hidden');
+            } else {
+                customSearchEngineRow.classList.add('hidden');
+                customSearchEngineError.classList.add('hidden');
+                if (customSearchEngineInput) {
+                    customSearchEngineInput.value = '';
+                }
+                if (saveCustomSearchUrlBtn) {
+                    saveCustomSearchUrlBtn.disabled = true;
+                }
+            }
+            // Update saved URL link visibility after revert
+            updateSavedUrlLinkVisibility();
+        }
+    }
+}
+
+// Handle search engine master toggle
+if (searchEngineToggle) {
+    searchEngineToggle.addEventListener('change', () => {
+        searchEngineEnabled = searchEngineToggle.checked;
+        if (searchEngineEnabled) {
+            searchEngineSettingsArea.classList.remove('hidden');
+            // Restore saved settings when opening
+            applySavedSearchEngineSettings();
+        } else {
+            searchEngineSettingsArea.classList.add('hidden');
+            // Reset to default when disabled
+            currentSearchEngine = 'default';
+            currentCustomSearchUrl = '';
+            searchEngineSelect.value = 'default';
+            customSearchEngineRow.classList.add('hidden');
+            customSearchEngineError.classList.add('hidden');
+            if (customSearchEngineInput) {
+                customSearchEngineInput.value = '';
+            }
+            if (saveCustomSearchUrlBtn) {
+                saveCustomSearchUrlBtn.disabled = true;
+            }
+        }
+    });
+}
+
+// Handle search engine selection change
+if (searchEngineSelect) {
+    searchEngineSelect.addEventListener('change', () => {
+        const selected = searchEngineSelect.value;
+        currentSearchEngine = selected;
+
+        if (selected === 'custom') {
+            customSearchEngineRow.classList.remove('hidden');
+            // Focus the input
+            setTimeout(() => customSearchEngineInput.focus(), 100);
+            // Disable save button until valid URL is entered
+            if (saveCustomSearchUrlBtn) {
+                saveCustomSearchUrlBtn.disabled = true;
+            }
+            // If there's a saved custom URL, pre-fill it
+            if (savedCustomSearchUrl) {
+                customSearchEngineInput.value = savedCustomSearchUrl;
+                saveCustomSearchUrlBtn.disabled = true;
+            }
+        } else {
+            customSearchEngineRow.classList.add('hidden');
+            customSearchEngineError.classList.add('hidden');
+            // Immediately save non-custom selections
+            savedSearchEngine = selected;
+            // Don't clear savedCustomSearchUrl - it's persisted in storage
+            // Only clear the current editing state
+            currentCustomSearchUrl = '';
+        }
+    });
+}
+
+// Handle custom search engine URL input - enable/disable save button based on validity
+if (customSearchEngineInput) {
+    customSearchEngineInput.addEventListener('input', () => {
+        customSearchEngineError.classList.add('hidden');
+        const url = customSearchEngineInput.value.trim();
+        if (saveCustomSearchUrlBtn) {
+            // Enable save button only if URL is valid AND different from saved
+            saveCustomSearchUrlBtn.disabled = !(isValidSearchUrl(url) && url !== savedCustomSearchUrl);
+        }
+    });
+}
+
+// Handle "load saved URL" link click
+if (savedUrlLink) {
+    savedUrlLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (savedCustomSearchUrl) {
+            // Select "custom" option
+            searchEngineSelect.value = 'custom';
+            currentSearchEngine = 'custom';
+            // Show custom search row
+            customSearchEngineRow.classList.remove('hidden');
+            // Fill in the saved URL
+            customSearchEngineInput.value = savedCustomSearchUrl;
+            // Disable save button (already saved)
+            saveCustomSearchUrlBtn.disabled = true;
+            customSearchEngineError.classList.add('hidden');
+            // Focus the input
+            setTimeout(() => customSearchEngineInput.focus(), 100);
+        }
+    });
+}
+
+// Handle save custom search engine URL button
+if (saveCustomSearchUrlBtn) {
+    saveCustomSearchUrlBtn.addEventListener('click', async () => {
+        const url = customSearchEngineInput.value.trim();
+        if (!url) {
+            return;
+        }
+
+        if (isValidSearchUrl(url)) {
+            currentCustomSearchUrl = url;
+            savedCustomSearchUrl = url;
+            savedSearchEngine = 'custom';
+            customSearchEngineError.classList.add('hidden');
+            saveCustomSearchUrlBtn.disabled = true;
+            // Save to storage for persistence across side panel sessions
+            try {
+                await chrome.storage.local.set({ savedCustomSearchUrl: url });
+            } catch (e) {
+                console.error('Failed to save custom search URL:', e);
+            }
+            showStatusMessage(getMessage('searchEngineCustomUrlSaved'));
+        } else {
+            customSearchEngineError.classList.remove('hidden');
+            currentCustomSearchUrl = '';
+        }
+    });
 }
 
 // Update incognito button state
@@ -210,6 +523,75 @@ function updateIncognitoButtonState() {
         openIncognitoBtn.disabled = false;
         openIncognitoBtn.title = getMessage('sidePanelOpenIncognito');
     }
+}
+
+// Update incognito button visibility based on incognitoEnabled setting
+function updateIncognitoButtonVisibility() {
+    if (!openIncognitoBtn) return;
+    // Check if incognito features are enabled
+    const incognitoEnabled = incognitoToggle ? incognitoToggle.checked : false;
+    if (incognitoEnabled) {
+        openIncognitoBtn.classList.remove('hidden');
+    } else {
+        openIncognitoBtn.classList.add('hidden');
+    }
+}
+
+// Incognito toggle - auto save
+if (incognitoToggle) {
+    incognitoToggle.addEventListener('change', async () => {
+        const enabled = incognitoToggle.checked;
+        try {
+            await chrome.storage.local.set({ incognitoEnabled: enabled });
+        } catch (e) {
+            console.error('Failed to save incognito setting:', e);
+        }
+        // Update incognito button visibility
+        updateIncognitoButtonVisibility();
+    });
+}
+
+// Reset settings - click to show confirm area
+if (resetSettingsItem) {
+    resetSettingsItem.addEventListener('click', () => {
+        if (resetSettingsConfirmArea) {
+            resetSettingsConfirmArea.classList.remove('hidden');
+        }
+    });
+}
+
+// Reset settings confirm button
+if (resetSettingsConfirmBtn) {
+    resetSettingsConfirmBtn.addEventListener('click', async () => {
+        try {
+            // Clear all storage
+            await chrome.storage.local.clear();
+            // Set default values
+            await chrome.storage.local.set({
+                contextMenuEnabled: true,
+                closeSidepanelEnabled: true,
+                retainTextEnabled: false,
+                incognitoEnabled: false
+            });
+            // Reload settings in UI
+            if (contextMenuToggle) contextMenuToggle.checked = true;
+            if (closeSidepanelMenuToggle) closeSidepanelMenuToggle.checked = true;
+            if (retainTextToggle) retainTextToggle.checked = false;
+            if (incognitoToggle) incognitoToggle.checked = false;
+            retainTextEnabled = false;
+            // Update UI states
+            updateCloseSidepanelMenuItemState();
+            updateIncognitoButtonVisibility();
+            await updateStagedButtons();
+            // Hide confirm area
+            if (resetSettingsConfirmArea) {
+                resetSettingsConfirmArea.classList.add('hidden');
+            }
+            showStatusMessage(getMessage('settingsResetSuccess'));
+        } catch (e) {
+            console.error('Failed to reset settings:', e);
+        }
+    });
 }
 
 // Hide all error messages
@@ -242,37 +624,56 @@ function validateText(text) {
     return true;
 }
 
-// Open in new tab
+// Open in new tab (with search engine preference if enabled)
 openTabBtn.addEventListener('click', async () => {
     const text = textInput.value.trim();
     if (!validateText(text)) return;
 
+    const message = {
+        action: 'openInNewTab',
+        text: text
+    };
+
+    // Only pass search engine params if the master toggle is enabled
+    if (searchEngineEnabled) {
+        message.searchEngine = currentSearchEngine;
+        message.customSearchUrl = currentCustomSearchUrl;
+    }
+
     try {
-        await chrome.runtime.sendMessage({
-            action: 'openInNewTab',
-            text: text
-        });
+        await chrome.runtime.sendMessage(message);
     } catch (e) {
         console.error('Failed to open in new tab:', e);
     }
 });
 
-// Open in incognito tab
+// Open in incognito tab (with search engine preference if enabled)
 openIncognitoBtn.addEventListener('click', async () => {
     if (isSidePanelInIncognito) return;
 
     const text = textInput.value.trim();
     if (!validateText(text)) return;
 
+    const message = {
+        action: 'openInIncognitoTab',
+        text: text
+    };
+
+    // Only pass search engine params if the master toggle is enabled
+    if (searchEngineEnabled) {
+        message.searchEngine = currentSearchEngine;
+        message.customSearchUrl = currentCustomSearchUrl;
+    }
+
     try {
-        await chrome.runtime.sendMessage({
-            action: 'openInIncognitoTab',
-            text: text
-        });
+        await chrome.runtime.sendMessage(message);
+        showStatusMessage(getMessage('incognitoTabOpened'));
     } catch (e) {
         console.error('Failed to open in incognito tab:', e);
     }
 });
+
+
 
 // Settings panel
 settingsBtn.addEventListener('click', () => {
@@ -283,11 +684,49 @@ settingsBtn.addEventListener('click', () => {
 });
 
 closeSettingsBtn.addEventListener('click', () => {
+    // Revert to saved settings if custom URL is invalid/unsaved
+    revertToSavedSearchEngineSettings();
+    // Hide reset settings confirm area
+    if (resetSettingsConfirmArea) {
+        resetSettingsConfirmArea.classList.add('hidden');
+    }
     settingsPanel.classList.remove('open');
     setTimeout(() => {
         settingsPanel.classList.add('hidden');
     }, 250);
 });
+
+// Help panel
+helpBtn.addEventListener('click', () => {
+    helpPanel.classList.remove('hidden');
+    // Force reflow for animation
+    void helpPanel.offsetWidth;
+    helpPanel.classList.add('open');
+});
+
+closeHelpBtn.addEventListener('click', () => {
+    helpPanel.classList.remove('open');
+    setTimeout(() => {
+        helpPanel.classList.add('hidden');
+    }, 250);
+});
+
+// Update close sidepanel menu item disabled state based on context menu toggle
+function updateCloseSidepanelMenuItemState() {
+    if (!closeSidepanelMenuItem) return;
+    const contextMenuEnabled = contextMenuToggle.checked;
+    if (contextMenuEnabled) {
+        closeSidepanelMenuItem.classList.remove('setting-item-disabled');
+        if (closeSidepanelMenuToggle) {
+            closeSidepanelMenuToggle.disabled = false;
+        }
+    } else {
+        closeSidepanelMenuItem.classList.add('setting-item-disabled');
+        if (closeSidepanelMenuToggle) {
+            closeSidepanelMenuToggle.disabled = true;
+        }
+    }
+}
 
 // Context menu toggle - auto save
 contextMenuToggle.addEventListener('change', async () => {
@@ -297,7 +736,22 @@ contextMenuToggle.addEventListener('change', async () => {
     } catch (e) {
         console.error('Failed to save setting:', e);
     }
+    // Update close sidepanel menu item state
+    updateCloseSidepanelMenuItemState();
 });
+
+// Close sidepanel menu toggle - auto save
+if (closeSidepanelMenuToggle) {
+    closeSidepanelMenuToggle.addEventListener('change', async () => {
+        const enabled = closeSidepanelMenuToggle.checked;
+        try {
+            await chrome.storage.local.set({ closeSidepanelEnabled: enabled });
+        } catch (e) {
+            console.error('Failed to save close sidepanel menu setting:', e);
+        }
+    });
+}
+
 
 // Retain text toggle - auto save
 if (retainTextToggle) {
@@ -346,10 +800,14 @@ loadStagedBtn.addEventListener('click', async () => {
     }
 });
 
-// Update clear button state based on text content
+// Update clear and copy button state based on text content
 function updateClearButtonState() {
+    const hasText = !!textInput.value.trim();
     if (clearTextBtn) {
-        clearTextBtn.disabled = !textInput.value.trim();
+        clearTextBtn.disabled = !hasText;
+    }
+    if (copyTextBtn) {
+        copyTextBtn.disabled = !hasText;
     }
 }
 
@@ -360,6 +818,21 @@ if (clearTextBtn) {
         updateClearButtonState();
         updateStagedButtons();
         textInput.focus();
+    });
+}
+
+// Copy text button
+if (copyTextBtn) {
+    copyTextBtn.addEventListener('click', async () => {
+        const text = textInput.value.trim();
+        if (!text) return;
+
+        try {
+            await navigator.clipboard.writeText(text);
+            showStatusMessage(getMessage('textCopied'));
+        } catch (e) {
+            console.error('Failed to copy text:', e);
+        }
     });
 }
 

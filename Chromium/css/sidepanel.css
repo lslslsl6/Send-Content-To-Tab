@@ -17,7 +17,7 @@
     --radius-sm: 4px;
 }
 
-    @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
     :root {
         --bg-primary: #1e1e2e;
         --bg-secondary: #2a2a3d;
@@ -42,6 +42,11 @@
     box-sizing: border-box;
 }
 
+/* Generic hidden utility */
+.hidden {
+    display: none !important;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background-color: var(--bg-primary);
@@ -53,17 +58,23 @@ body {
 
 #app {
     padding: 12px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
 }
 
 textarea {
     width: 100%;
-    min-height: 400px;
+    flex: 1;
+    min-height: 120px;
     padding: 10px 12px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
@@ -72,7 +83,8 @@ textarea {
     font-size: 14px;
     font-family: inherit;
     line-height: 1.5;
-    resize: vertical;
+    resize: none;
+    /*resize: vertical;*/
     outline: none;
     transition: border-color 0.2s ease;
 }
@@ -89,8 +101,11 @@ textarea::placeholder {
 .button-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    flex-shrink: 0;
 }
+
+
 
 .btn {
     display: flex;
@@ -164,9 +179,10 @@ textarea::placeholder {
     z-index: 100;
     display: flex;
     flex-direction: column;
-    padding: 12px;
+    padding: 12px 20px 12px 12px;
     transform: translateX(100%);
     transition: transform 0.25s ease;
+    overflow-y: auto;
 }
 
 .settings-panel.open {
@@ -182,8 +198,6 @@ textarea::placeholder {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-color);
 }
 
 .settings-header h3 {
@@ -194,6 +208,8 @@ textarea::placeholder {
 
 .settings-content {
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 .setting-item {
@@ -222,6 +238,61 @@ textarea::placeholder {
     font-size: 12px;
     color: var(--text-secondary);
 }
+
+.setting-item-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Sub-item (indented, visually downgraded) */
+.setting-item-sub {
+    padding-left: 24px;
+    padding-top: 4px;
+    padding-bottom: 8px;
+}
+
+.setting-item-sub .setting-label {
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.setting-item-sub .setting-desc {
+    font-size: 11px;
+}
+
+/* Search engine settings area (collapsible under toggle) */
+.search-engine-settings-area {
+    padding-left: 0;
+    border-left: 2px solid var(--border-color);
+    margin-left: 0;
+    padding-left: 12px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.search-engine-settings-area.hidden {
+    display: none;
+}
+
+/* Custom search URL row with save button */
+.custom-search-url-row {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    align-items: flex-start;
+}
+
+.custom-search-url-row .setting-input {
+    flex: 1;
+}
+
+.btn-save-url {
+    font-size: 12px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 
 /* Toggle Switch */
 .toggle {
@@ -262,23 +333,26 @@ textarea::placeholder {
     border-radius: 50%;
 }
 
-.toggle input:checked + .toggle-slider {
+.toggle input:checked+.toggle-slider {
     background-color: var(--toggle-active);
 }
 
-.toggle input:checked + .toggle-slider:before {
+.toggle input:checked+.toggle-slider:before {
     transform: translateX(16px);
 }
 
-/* Textarea actions (get URL and clear buttons) */
+/* Textarea actions (get URL, copy, and clear buttons) */
 .textarea-actions {
     display: flex;
-    justify-content: space-between;
     gap: 8px;
+    flex-shrink: 0;
 }
 
+
 .textarea-actions .btn-action,
+.textarea-actions .btn-copy,
 .textarea-actions .btn-clear {
+    flex: 1;
     font-size: 12px;
     padding: 6px 12px;
     background: none;
@@ -287,6 +361,12 @@ textarea::placeholder {
 }
 
 .textarea-actions .btn-action:hover:not(:disabled) {
+    background-color: var(--bg-tertiary);
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.textarea-actions .btn-copy:hover:not(:disabled) {
     background-color: var(--bg-tertiary);
     color: var(--accent-color);
     border-color: var(--accent-color);
@@ -302,7 +382,9 @@ textarea::placeholder {
 .staged-text-buttons {
     display: flex;
     gap: 8px;
+    flex-shrink: 0;
 }
+
 
 .staged-text-buttons.hidden {
     display: none;
@@ -315,16 +397,14 @@ textarea::placeholder {
 }
 
 /* Error messages */
-.empty-text-error,
-.unsupported-page-error {
+.empty-text-error {
     color: var(--danger-color);
     font-size: 12px;
     line-height: 1.4;
     margin-top: -8px;
 }
 
-.empty-text-error.hidden,
-.unsupported-page-error.hidden {
+.empty-text-error.hidden {
     display: none;
 }
 
@@ -340,7 +420,9 @@ textarea::placeholder {
     color: var(--danger-color);
     font-size: 12px;
     line-height: 1.4;
+    flex-shrink: 0;
 }
+
 
 .warning-banner svg {
     flex-shrink: 0;
@@ -350,6 +432,41 @@ textarea::placeholder {
 
 .warning-banner.hidden {
     display: none;
+}
+
+/* Help content */
+.help-content {
+    padding: 8px 0;
+}
+
+.help-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    margin-top: 16px;
+}
+
+.help-section-title:first-child {
+    margin-top: 0;
+}
+
+.help-content p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+/* Inline code styling */
+code {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.9em;
+    white-space: nowrap;
 }
 
 /* Status message */
@@ -374,9 +491,187 @@ textarea::placeholder {
     opacity: 1;
 }
 
+/* Setting divider */
+.setting-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 8px 0;
+}
+
+/* Setting section header */
+.setting-section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 0 4px 0;
+}
+
+.setting-section-header .setting-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.setting-section-header .setting-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Setting select label (standalone row) */
+.setting-item-select-label {
+    padding: 8px 0 4px 0;
+}
+
+.setting-item-select-label .setting-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* Setting select (dropdown) */
+.setting-item-select {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    gap: 12px;
+}
+
+.setting-select {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    min-width: 140px;
+    transition: border-color 0.2s ease;
+}
+
+.setting-select:focus {
+    border-color: var(--accent-color);
+}
+
+/* Setting input (for custom search engine URL) */
+.setting-item-input {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 0;
+    gap: 6px;
+}
+
+.setting-item-input.hidden {
+    display: none;
+}
+
+.setting-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.setting-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15);
+}
+
+.setting-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Setting error message */
+.setting-error {
+    color: var(--danger-color);
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 4px 0;
+}
+
+.setting-error.hidden {
+    display: none;
+}
+
+/* Saved URL link row */
+.saved-url-link-row {
+    padding: 2px 0 0 0;
+}
+
+.saved-url-link-row.hidden {
+    display: none;
+}
+
+.saved-url-link {
+    font-size: 12px;
+    color: var(--accent-color);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.saved-url-link:hover {
+    text-decoration: underline;
+    color: var(--accent-hover);
+}
+
+/* Reset settings confirm area */
+.reset-settings-confirm-area {
+    padding: 8px 0 12px 0;
+}
+
+.reset-settings-confirm-area.hidden {
+    display: none;
+}
+
+.reset-settings-confirm-desc {
+    font-size: 12px;
+    color: var(--danger-color);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.btn-danger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--danger-color);
+    color: #ffffff;
+    width: 100%;
+}
+
+.btn-danger:hover {
+    background-color: var(--danger-hover);
+}
+
+/* Setting note (session-only hint) */
+.setting-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    padding: 8px 0 4px 0;
+    font-style: italic;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -385,7 +680,7 @@ textarea::placeholder {
 
 ::-webkit-scrollbar-thumb {
     background-color: var(--border-color);
-    border-radius: 3px;
+    border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

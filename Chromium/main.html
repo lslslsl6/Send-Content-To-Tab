@@ -11,16 +11,6 @@
 <body>
     <div id="app">
         <div class="container">
-            <div id="incognitoWarning" class="warning-banner hidden">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
-                    </path>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-                <span>__MSG_incognitoWarning__</span>
-            </div>
             <div id="fileAccessWarning" class="warning-banner hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -33,7 +23,6 @@
             </div>
             <textarea id="textInput" placeholder="__MSG_sidePanelPlaceholder__"></textarea>
             <div id="emptyTextError" class="empty-text-error hidden">__MSG_emptyTextError__</div>
-            <div id="unsupportedPageError" class="unsupported-page-error hidden">__MSG_unsupportedPageError__</div>
 
             <div class="textarea-actions">
                 <button id="getCurrentUrlBtn" class="btn btn-secondary btn-action" title="__MSG_getCurrentUrl__">
@@ -46,6 +35,14 @@
                         </path>
                     </svg>
                     <span>__MSG_getCurrentUrl__</span>
+                </button>
+                <button id="copyTextBtn" class="btn btn-secondary btn-copy" title="__MSG_copyText__" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>__MSG_copyText__</span>
                 </button>
                 <button id="clearTextBtn" class="btn btn-secondary btn-clear" title="__MSG_clearText__" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -99,6 +96,14 @@
             </div>
 
             <div class="settings-row">
+                <button id="helpBtn" class="btn btn-icon" title="__MSG_sidePanelHelp__">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </button>
                 <button id="settingsBtn" class="btn btn-icon" title="__MSG_sidePanelSettings__">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -124,6 +129,19 @@
             </button>
         </div>
         <div class="settings-content">
+            <label class="setting-item" id="incognitoToggleItem">
+                <div class="setting-text">
+                    <span class="setting-label">__MSG_settingsIncognitoEnabled__</span>
+                    <span class="setting-desc">__MSG_settingsIncognitoEnabledDesc__</span>
+                </div>
+                <span class="toggle">
+                    <input type="checkbox" id="incognitoToggle">
+                    <span class="toggle-slider"></span>
+                </span>
+            </label>
+
+            <div class="setting-divider"></div>
+
             <label class="setting-item" id="contextMenuItem">
                 <div class="setting-text">
                     <span class="setting-label">__MSG_settingsEnableContextMenu__</span>
@@ -131,6 +149,16 @@
                 </div>
                 <span class="toggle">
                     <input type="checkbox" id="contextMenuToggle">
+                    <span class="toggle-slider"></span>
+                </span>
+            </label>
+            <label class="setting-item setting-item-sub" id="closeSidepanelMenuItem">
+                <div class="setting-text">
+                    <span class="setting-label">__MSG_settingsCloseSidepanelEnabled__</span>
+                    <span class="setting-desc">__MSG_settingsCloseSidepanelEnabledDesc__</span>
+                </div>
+                <span class="toggle">
+                    <input type="checkbox" id="closeSidepanelMenuToggle">
                     <span class="toggle-slider"></span>
                 </span>
             </label>
@@ -144,6 +172,92 @@
                     <span class="toggle-slider"></span>
                 </span>
             </label>
+
+            <div class="setting-divider"></div>
+
+            <label class="setting-item" id="searchEngineToggleItem">
+                <div class="setting-text">
+                    <span class="setting-label">__MSG_searchEngineSettings__</span>
+                    <span class="setting-desc">__MSG_searchEngineToggleDesc__</span>
+                </div>
+                <span class="toggle">
+                    <input type="checkbox" id="searchEngineToggle">
+                    <span class="toggle-slider"></span>
+                </span>
+            </label>
+
+            <div id="searchEngineSettingsArea" class="search-engine-settings-area hidden">
+                <div class="setting-item-select-label">
+                    <span class="setting-label">__MSG_searchEngineLabel__</span>
+                </div>
+                <div class="setting-item-select">
+                    <select id="searchEngineSelect" class="setting-select">
+                        <option value="default">__MSG_searchEngineDefault__</option>
+                        <option value="google">Google</option>
+                        <option value="bing">Bing</option>
+                        <option value="duckduckgo">DuckDuckGo</option>
+                        <option value="custom">__MSG_searchEngineCustom__</option>
+                    </select>
+                </div>
+
+                <div id="customSearchEngineRow" class="setting-item setting-item-input hidden">
+                    <div class="setting-text">
+                        <span class="setting-label">__MSG_searchEngineCustomUrlLabel__</span>
+                        <span class="setting-desc">__MSG_searchEngineCustomUrlDesc__</span>
+                    </div>
+                    <div class="custom-search-url-row">
+                        <input type="text" id="customSearchEngineInput" class="setting-input" placeholder="e.g.: https://example.com/search?q={searchTerms}" autocomplete="off">
+                        <button id="saveCustomSearchUrlBtn" class="btn btn-secondary btn-save-url" disabled>__MSG_save__</button>
+                    </div>
+                </div>
+                <div id="savedUrlLinkRow" class="saved-url-link-row hidden">
+                    <a href="#" id="savedUrlLink" class="saved-url-link">__MSG_searchEngineLoadSavedUrl__</a>
+                </div>
+
+                <div id="customSearchEngineError" class="setting-error hidden">__MSG_searchEngineCustomUrlError__</div>
+
+                <div class="setting-note">
+                    __MSG_searchEngineSessionNote__
+                </div>
+            </div>
+
+            <div class="setting-divider"></div>
+
+            <div class="setting-item" id="resetSettingsItem">
+                <div class="setting-text">
+                    <span class="setting-label">__MSG_resetSettings__</span>
+                    <span class="setting-desc">__MSG_resetSettingsDesc__</span>
+                </div>
+            </div>
+            <div id="resetSettingsConfirmArea" class="reset-settings-confirm-area hidden">
+                <div class="reset-settings-confirm-desc">__MSG_resetSettingsConfirmDesc__</div>
+                <button id="resetSettingsConfirmBtn" class="btn btn-danger">__MSG_resetSettingsConfirm__</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="helpPanel" class="settings-panel hidden">
+        <div class="settings-header">
+            <h3>__MSG_sidePanelHelp__</h3>
+            <button id="closeHelpBtn" class="btn btn-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="settings-content">
+            <div class="help-content">
+                <h4 class="help-section-title">__MSG_helpIncognitoTitle__</h4>
+                <p>__MSG_helpIncognitoDesc1__</p>
+                <p>__MSG_helpIncognitoDesc2__</p>
+                <h4 class="help-section-title">__MSG_helpContextMenuTitle__</h4>
+                <p>__MSG_helpContextMenuDesc1__</p>
+                <p>__MSG_helpContextMenuDesc2__</p>
+                <h4 class="help-section-title">__MSG_helpSearchEngineTitle__</h4>
+                <p>__MSG_helpSearchEngineDesc__</p>
+            </div>
         </div>
     </div>
 
