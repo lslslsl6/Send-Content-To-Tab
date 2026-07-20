@@ -119,18 +119,19 @@ async function createContextMenus() {
             documentUrlPatterns: ['<all_urls>']
         });
 
+        // Placeholder menu item (not clickable) to indicate that the following options require manually opening the side panel
+        chrome.contextMenus.create({
+            id: 'placeholder-manual-open',
+            title: chrome.i18n.getMessage('contextMenuOpenSidePanelManually'),
+            contexts: ['all'],
+            documentUrlPatterns: ['<all_urls>'],
+            enabled: false
+        });
+
         // Send current page URL to side panel (always visible globally)
         chrome.contextMenus.create({
             id: CONTEXT_MENU_IDS.SEND_CURRENT_PAGE_TO_SIDEPANEL,
             title: chrome.i18n.getMessage('contextMenuSendCurrentPageToSidepanel'),
-            contexts: ['all'],
-            documentUrlPatterns: ['<all_urls>']
-        });
-
-        // Separator
-        chrome.contextMenus.create({
-            id: 'separator-2',
-            type: 'separator',
             contexts: ['all'],
             documentUrlPatterns: ['<all_urls>']
         });
@@ -163,7 +164,15 @@ async function createContextMenus() {
             documentUrlPatterns: linkPatterns
         });
 
-        // Send selected text to incognito window (only on supported pages, only if incognito features enabled)
+        // Separator
+        chrome.contextMenus.create({
+            id: 'separator-2',
+            type: 'separator',
+            contexts: ['all'],
+            documentUrlPatterns: ['<all_urls>']
+        });
+
+        // Send selected text to incognito tab (only on supported pages)
         const { incognitoEnabled } = await chrome.storage.local.get('incognitoEnabled');
         if (incognitoEnabled === true) {
             chrome.contextMenus.create({
@@ -498,7 +507,7 @@ async function openSearchInIncognitoTab(query, searchEngine, customSearchUrl) {
 }
 
 
-// Built-in search engine definitions
+// Built-in search engine definitions, you can set it manually
 const SEARCH_ENGINES = {
     google: {
         name: 'Google',
@@ -512,7 +521,6 @@ const SEARCH_ENGINES = {
         name: 'DuckDuckGo',
         searchUrl: 'https://duckduckgo.com/?q={searchTerms}'
     }
-    // You can add built-in search engine manually.
 };
 
 // Get search URL for a given engine ID and query text
