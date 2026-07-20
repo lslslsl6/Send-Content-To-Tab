@@ -571,7 +571,7 @@ function searchWithDefaultEngine(query, disposition = 'NEW_TAB') {
 // Check if text looks like a URL (returns true for URLs, false for search queries)
 function isUrlLike(text) {
     const trimmed = text.trim();
-    const URL_PREFIXES = ['http://', 'https://', 'file://'];
+    const URL_PREFIXES = ['http://', 'https://', 'file:///']; // file URLs
     if (URL_PREFIXES.some(prefix => trimmed.startsWith(prefix))) {
         return true;
     }
