@@ -458,6 +458,22 @@ textarea::placeholder {
     margin-bottom: 12px;
 }
 
+/* Help note (emphasized note text) */
+.help-note {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background-color: rgba(26, 115, 232, 0.06);
+    border: 1px solid var(--accent-color);
+    border-radius: var(--radius);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.help-note strong {
+    color: var(--accent-color);
+}
+
 /* Inline code styling */
 code {
     background-color: var(--bg-tertiary);
@@ -621,6 +637,40 @@ code {
 .saved-url-link:hover {
     text-decoration: underline;
     color: var(--accent-hover);
+}
+
+/* Chevron icon for clickable setting items */
+.setting-chevron {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+/* Clear retained text confirm area */
+.clear-retained-text-confirm-area {
+    padding: 8px 0 12px 0;
+}
+
+.clear-retained-text-confirm-area.hidden {
+    display: none;
+}
+
+.clear-retained-text-confirm-desc {
+    font-size: 12px;
+    color: var(--danger-color);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.clear-retained-text-confirm-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.clear-retained-text-confirm-buttons .btn {
+    flex: 1;
+    font-size: 12px;
+    padding: 8px 12px;
 }
 
 /* Reset settings confirm area */

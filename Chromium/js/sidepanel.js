@@ -41,11 +41,18 @@ function localizePage() {
         }
     });
 
+    // Only localize title attributes for helpBtn and settingsBtn (keep tooltips for these two)
     document.querySelectorAll('[title]').forEach(el => {
         const title = el.getAttribute('title');
         if (title && title.startsWith('__MSG_')) {
-            const msgName = title.replace('__MSG_', '').replace('__', '');
-            el.setAttribute('title', getMessage(msgName));
+            // Only set tooltip for help button and settings button
+            if (el.id === 'helpBtn' || el.id === 'settingsBtn') {
+                const msgName = title.replace('__MSG_', '').replace('__', '');
+                el.setAttribute('title', getMessage(msgName));
+            } else {
+                // Remove title attribute from all other elements to suppress tooltips
+                el.removeAttribute('title');
+            }
         }
     });
 
@@ -93,6 +100,10 @@ const incognitoToggle = document.getElementById('incognitoToggle');
 const resetSettingsItem = document.getElementById('resetSettingsItem');
 const resetSettingsConfirmArea = document.getElementById('resetSettingsConfirmArea');
 const resetSettingsConfirmBtn = document.getElementById('resetSettingsConfirmBtn');
+const clearRetainedTextItem = document.getElementById('clearRetainedTextItem');
+const clearRetainedTextConfirmArea = document.getElementById('clearRetainedTextConfirmArea');
+const clearRetainedTextConfirmBtn = document.getElementById('clearRetainedTextConfirmBtn');
+const clearRetainedTextCancelBtn = document.getElementById('clearRetainedTextCancelBtn');
 
 const fileAccessWarning = document.getElementById('fileAccessWarning');
 const emptyTextError = document.getElementById('emptyTextError');
@@ -254,6 +265,9 @@ async function init() {
 
     // Update staged buttons visibility and state
     await updateStagedButtons();
+
+    // Update clear retained text item visibility
+    await updateClearRetainedTextItemVisibility();
 
     // Update clear button state
     updateClearButtonState();
@@ -521,7 +535,7 @@ function updateIncognitoButtonState() {
         openIncognitoBtn.title = getMessage('incognitoDisabledHint');
     } else {
         openIncognitoBtn.disabled = false;
-        openIncognitoBtn.title = getMessage('sidePanelOpenIncognito');
+        openIncognitoBtn.removeAttribute('title');
     }
 }
 
@@ -583,6 +597,8 @@ if (resetSettingsConfirmBtn) {
             updateCloseSidepanelMenuItemState();
             updateIncognitoButtonVisibility();
             await updateStagedButtons();
+            // Update clear retained text item visibility (retainedText was cleared)
+            await updateClearRetainedTextItemVisibility();
             // Hide confirm area
             if (resetSettingsConfirmArea) {
                 resetSettingsConfirmArea.classList.add('hidden');
@@ -690,6 +706,10 @@ closeSettingsBtn.addEventListener('click', () => {
     if (resetSettingsConfirmArea) {
         resetSettingsConfirmArea.classList.add('hidden');
     }
+    // Hide clear retained text confirm area
+    if (clearRetainedTextConfirmArea) {
+        clearRetainedTextConfirmArea.classList.add('hidden');
+    }
     settingsPanel.classList.remove('open');
     setTimeout(() => {
         settingsPanel.classList.add('hidden');
@@ -753,6 +773,76 @@ if (closeSidepanelMenuToggle) {
 }
 
 
+// Update clear retained text item visibility based on retainTextEnabled and retainedText existence
+async function updateClearRetainedTextItemVisibility() {
+    if (!clearRetainedTextItem) return;
+    if (retainTextEnabled) {
+        // Only show the clear button if there is actually retained text in storage
+        try {
+            const { retainedText } = await chrome.storage.local.get('retainedText');
+            if (retainedText) {
+                clearRetainedTextItem.classList.remove('hidden');
+            } else {
+                clearRetainedTextItem.classList.add('hidden');
+                // Also hide the confirm area when the item is hidden
+                if (clearRetainedTextConfirmArea) {
+                    clearRetainedTextConfirmArea.classList.add('hidden');
+                }
+            }
+        } catch (e) {
+            clearRetainedTextItem.classList.add('hidden');
+            if (clearRetainedTextConfirmArea) {
+                clearRetainedTextConfirmArea.classList.add('hidden');
+            }
+        }
+    } else {
+        clearRetainedTextItem.classList.add('hidden');
+        // Also hide the confirm area when the item is hidden
+        if (clearRetainedTextConfirmArea) {
+            clearRetainedTextConfirmArea.classList.add('hidden');
+        }
+    }
+}
+
+
+// Clear retained text item - click to show confirm area
+if (clearRetainedTextItem) {
+    clearRetainedTextItem.addEventListener('click', () => {
+        if (clearRetainedTextConfirmArea) {
+            clearRetainedTextConfirmArea.classList.remove('hidden');
+        }
+    });
+}
+
+// Clear retained text confirm button
+if (clearRetainedTextConfirmBtn) {
+    clearRetainedTextConfirmBtn.addEventListener('click', async () => {
+        try {
+            await chrome.storage.local.remove('retainedText');
+            // Hide confirm area
+            if (clearRetainedTextConfirmArea) {
+                clearRetainedTextConfirmArea.classList.add('hidden');
+            }
+            // Update staged buttons to reflect that retainedText is now empty
+            await updateStagedButtons();
+            // Update clear retained text item visibility (hide it since retainedText is now empty)
+            await updateClearRetainedTextItemVisibility();
+            showStatusMessage(getMessage('retainedTextCleared'));
+        } catch (e) {
+            console.error('Failed to clear retained text:', e);
+        }
+    });
+}
+
+// Clear retained text cancel button
+if (clearRetainedTextCancelBtn) {
+    clearRetainedTextCancelBtn.addEventListener('click', () => {
+        if (clearRetainedTextConfirmArea) {
+            clearRetainedTextConfirmArea.classList.add('hidden');
+        }
+    });
+}
+
 // Retain text toggle - auto save
 if (retainTextToggle) {
     retainTextToggle.addEventListener('change', async () => {
@@ -768,6 +858,8 @@ if (retainTextToggle) {
         }
         // Update staged buttons visibility and state
         await updateStagedButtons();
+        // Update clear retained text item visibility
+        await updateClearRetainedTextItemVisibility();
     });
 }
 
@@ -780,6 +872,8 @@ saveStagedBtn.addEventListener('click', async () => {
         await chrome.storage.local.set({ retainedText: text });
         showStatusMessage(getMessage('stagedTextSaved'));
         await updateStagedButtons();
+        // Update clear retained text item visibility (show it since retainedText now exists)
+        await updateClearRetainedTextItemVisibility();
     } catch (e) {
         console.error('Failed to save staged text:', e);
     }

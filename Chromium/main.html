@@ -25,7 +25,7 @@
             <div id="emptyTextError" class="empty-text-error hidden">__MSG_emptyTextError__</div>
 
             <div class="textarea-actions">
-                <button id="getCurrentUrlBtn" class="btn btn-secondary btn-action" title="__MSG_getCurrentUrl__">
+                <button id="getCurrentUrlBtn" class="btn btn-secondary btn-action">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -36,7 +36,7 @@
                     </svg>
                     <span>__MSG_getCurrentUrl__</span>
                 </button>
-                <button id="copyTextBtn" class="btn btn-secondary btn-copy" title="__MSG_copyText__" disabled>
+                <button id="copyTextBtn" class="btn btn-secondary btn-copy" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -44,7 +44,7 @@
                     </svg>
                     <span>__MSG_copyText__</span>
                 </button>
-                <button id="clearTextBtn" class="btn btn-secondary btn-clear" title="__MSG_clearText__" disabled>
+                <button id="clearTextBtn" class="btn btn-secondary btn-clear" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
@@ -55,7 +55,7 @@
             </div>
 
             <div id="stagedTextButtons" class="staged-text-buttons hidden">
-                <button id="saveStagedBtn" class="btn btn-secondary" title="__MSG_saveStagedText__" disabled>
+                <button id="saveStagedBtn" class="btn btn-secondary" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
@@ -64,7 +64,7 @@
                     </svg>
                     <span>__MSG_saveStagedText__</span>
                 </button>
-                <button id="loadStagedBtn" class="btn btn-secondary" title="__MSG_loadStagedText__" disabled>
+                <button id="loadStagedBtn" class="btn btn-secondary" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="1 4 1 10 7 10"></polyline>
@@ -75,7 +75,7 @@
             </div>
 
             <div class="button-group">
-                <button id="openTabBtn" class="btn btn-primary" title="__MSG_sidePanelOpenTab__">
+                <button id="openTabBtn" class="btn btn-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
@@ -85,7 +85,7 @@
                     <span>__MSG_sidePanelOpenTab__</span>
                 </button>
 
-                <button id="openIncognitoBtn" class="btn btn-secondary" title="__MSG_sidePanelOpenIncognito__">
+                <button id="openIncognitoBtn" class="btn btn-secondary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -172,6 +172,23 @@
                     <span class="toggle-slider"></span>
                 </span>
             </label>
+            <div id="clearRetainedTextItem" class="setting-item hidden">
+                <div class="setting-text">
+                    <span class="setting-label">__MSG_clearRetainedText__</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="setting-chevron">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </div>
+            <div id="clearRetainedTextConfirmArea" class="clear-retained-text-confirm-area hidden">
+                <div class="clear-retained-text-confirm-desc">__MSG_clearRetainedTextConfirmDesc__</div>
+                <div class="clear-retained-text-confirm-buttons">
+                    <button id="clearRetainedTextConfirmBtn" class="btn btn-danger">__MSG_clearRetainedTextConfirm__</button>
+                    <button id="clearRetainedTextCancelBtn" class="btn btn-secondary">__MSG_clearRetainedTextCancel__</button>
+                </div>
+            </div>
 
             <div class="setting-divider"></div>
 
@@ -196,6 +213,7 @@
                         <option value="google">Google</option>
                         <option value="bing">Bing</option>
                         <option value="duckduckgo">DuckDuckGo</option>
+                        <option value="baidu">Baidu</option>
                         <option value="custom">__MSG_searchEngineCustom__</option>
                     </select>
                 </div>
@@ -252,6 +270,7 @@
                 <h4 class="help-section-title">__MSG_helpIncognitoTitle__</h4>
                 <p>__MSG_helpIncognitoDesc1__</p>
                 <p>__MSG_helpIncognitoDesc2__</p>
+                <p class="help-note">__MSG_helpIncognitoNote__</p>
                 <h4 class="help-section-title">__MSG_helpContextMenuTitle__</h4>
                 <p>__MSG_helpContextMenuDesc1__</p>
                 <p>__MSG_helpContextMenuDesc2__</p>
