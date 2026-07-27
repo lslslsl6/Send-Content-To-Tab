@@ -100,10 +100,12 @@ const incognitoToggle = document.getElementById('incognitoToggle');
 const resetSettingsItem = document.getElementById('resetSettingsItem');
 const resetSettingsConfirmArea = document.getElementById('resetSettingsConfirmArea');
 const resetSettingsConfirmBtn = document.getElementById('resetSettingsConfirmBtn');
+const resetSettingsCancelBtn = document.getElementById('resetSettingsCancelBtn');
 const clearRetainedTextItem = document.getElementById('clearRetainedTextItem');
 const clearRetainedTextConfirmArea = document.getElementById('clearRetainedTextConfirmArea');
 const clearRetainedTextConfirmBtn = document.getElementById('clearRetainedTextConfirmBtn');
 const clearRetainedTextCancelBtn = document.getElementById('clearRetainedTextCancelBtn');
+const confirmOverlay = document.getElementById('confirmOverlay');
 
 const fileAccessWarning = document.getElementById('fileAccessWarning');
 const emptyTextError = document.getElementById('emptyTextError');
@@ -216,7 +218,7 @@ async function init() {
     try {
         const { closeSidepanelEnabled } = await chrome.storage.local.get('closeSidepanelEnabled');
         if (closeSidepanelMenuToggle) {
-            closeSidepanelMenuToggle.checked = closeSidepanelEnabled !== false;
+            closeSidepanelMenuToggle.checked = closeSidepanelEnabled === true;
         }
     } catch (e) {
         console.error('Failed to load close sidepanel menu setting:', e);
@@ -565,12 +567,33 @@ if (incognitoToggle) {
     });
 }
 
-// Reset settings - click to show confirm area
+// Helper to show a confirm dialog with overlay
+function showConfirmDialog(dialogElement) {
+    if (confirmOverlay) {
+        confirmOverlay.classList.remove('hidden');
+    }
+    if (dialogElement) {
+        dialogElement.classList.remove('hidden');
+    }
+}
+
+// Helper to hide all confirm dialogs and overlay
+function hideAllConfirmDialogs() {
+    if (confirmOverlay) {
+        confirmOverlay.classList.add('hidden');
+    }
+    if (clearRetainedTextConfirmArea) {
+        clearRetainedTextConfirmArea.classList.add('hidden');
+    }
+    if (resetSettingsConfirmArea) {
+        resetSettingsConfirmArea.classList.add('hidden');
+    }
+}
+
+// Reset settings - click to show confirm dialog
 if (resetSettingsItem) {
     resetSettingsItem.addEventListener('click', () => {
-        if (resetSettingsConfirmArea) {
-            resetSettingsConfirmArea.classList.remove('hidden');
-        }
+        showConfirmDialog(resetSettingsConfirmArea);
     });
 }
 
@@ -583,13 +606,13 @@ if (resetSettingsConfirmBtn) {
             // Set default values
             await chrome.storage.local.set({
                 contextMenuEnabled: true,
-                closeSidepanelEnabled: true,
+                closeSidepanelEnabled: false,
                 retainTextEnabled: false,
                 incognitoEnabled: false
             });
             // Reload settings in UI
             if (contextMenuToggle) contextMenuToggle.checked = true;
-            if (closeSidepanelMenuToggle) closeSidepanelMenuToggle.checked = true;
+            if (closeSidepanelMenuToggle) closeSidepanelMenuToggle.checked = false;
             if (retainTextToggle) retainTextToggle.checked = false;
             if (incognitoToggle) incognitoToggle.checked = false;
             retainTextEnabled = false;
@@ -599,14 +622,19 @@ if (resetSettingsConfirmBtn) {
             await updateStagedButtons();
             // Update clear retained text item visibility (retainedText was cleared)
             await updateClearRetainedTextItemVisibility();
-            // Hide confirm area
-            if (resetSettingsConfirmArea) {
-                resetSettingsConfirmArea.classList.add('hidden');
-            }
+            // Hide confirm dialog
+            hideAllConfirmDialogs();
             showStatusMessage(getMessage('settingsResetSuccess'));
         } catch (e) {
             console.error('Failed to reset settings:', e);
         }
+    });
+}
+
+// Reset settings cancel button
+if (resetSettingsCancelBtn) {
+    resetSettingsCancelBtn.addEventListener('click', () => {
+        hideAllConfirmDialogs();
     });
 }
 
@@ -702,14 +730,8 @@ settingsBtn.addEventListener('click', () => {
 closeSettingsBtn.addEventListener('click', () => {
     // Revert to saved settings if custom URL is invalid/unsaved
     revertToSavedSearchEngineSettings();
-    // Hide reset settings confirm area
-    if (resetSettingsConfirmArea) {
-        resetSettingsConfirmArea.classList.add('hidden');
-    }
-    // Hide clear retained text confirm area
-    if (clearRetainedTextConfirmArea) {
-        clearRetainedTextConfirmArea.classList.add('hidden');
-    }
+    // Hide all confirm dialogs and overlay
+    hideAllConfirmDialogs();
     settingsPanel.classList.remove('open');
     setTimeout(() => {
         settingsPanel.classList.add('hidden');
@@ -784,33 +806,25 @@ async function updateClearRetainedTextItemVisibility() {
                 clearRetainedTextItem.classList.remove('hidden');
             } else {
                 clearRetainedTextItem.classList.add('hidden');
-                // Also hide the confirm area when the item is hidden
-                if (clearRetainedTextConfirmArea) {
-                    clearRetainedTextConfirmArea.classList.add('hidden');
-                }
+                // Also hide the confirm dialog when the item is hidden
+                hideAllConfirmDialogs();
             }
         } catch (e) {
             clearRetainedTextItem.classList.add('hidden');
-            if (clearRetainedTextConfirmArea) {
-                clearRetainedTextConfirmArea.classList.add('hidden');
-            }
+            hideAllConfirmDialogs();
         }
     } else {
         clearRetainedTextItem.classList.add('hidden');
-        // Also hide the confirm area when the item is hidden
-        if (clearRetainedTextConfirmArea) {
-            clearRetainedTextConfirmArea.classList.add('hidden');
-        }
+        // Also hide the confirm dialog when the item is hidden
+        hideAllConfirmDialogs();
     }
 }
 
 
-// Clear retained text item - click to show confirm area
+// Clear retained text item - click to show confirm dialog
 if (clearRetainedTextItem) {
     clearRetainedTextItem.addEventListener('click', () => {
-        if (clearRetainedTextConfirmArea) {
-            clearRetainedTextConfirmArea.classList.remove('hidden');
-        }
+        showConfirmDialog(clearRetainedTextConfirmArea);
     });
 }
 
@@ -819,10 +833,8 @@ if (clearRetainedTextConfirmBtn) {
     clearRetainedTextConfirmBtn.addEventListener('click', async () => {
         try {
             await chrome.storage.local.remove('retainedText');
-            // Hide confirm area
-            if (clearRetainedTextConfirmArea) {
-                clearRetainedTextConfirmArea.classList.add('hidden');
-            }
+            // Hide confirm dialog
+            hideAllConfirmDialogs();
             // Update staged buttons to reflect that retainedText is now empty
             await updateStagedButtons();
             // Update clear retained text item visibility (hide it since retainedText is now empty)
@@ -837,9 +849,7 @@ if (clearRetainedTextConfirmBtn) {
 // Clear retained text cancel button
 if (clearRetainedTextCancelBtn) {
     clearRetainedTextCancelBtn.addEventListener('click', () => {
-        if (clearRetainedTextConfirmArea) {
-            clearRetainedTextConfirmArea.classList.add('hidden');
-        }
+        hideAllConfirmDialogs();
     });
 }
 
@@ -849,10 +859,6 @@ if (retainTextToggle) {
         retainTextEnabled = retainTextToggle.checked;
         try {
             await chrome.storage.local.set({ retainTextEnabled: retainTextEnabled });
-            // If disabling, clear saved text
-            if (!retainTextEnabled) {
-                await chrome.storage.local.remove('retainedText');
-            }
         } catch (e) {
             console.error('Failed to save retain text setting:', e);
         }

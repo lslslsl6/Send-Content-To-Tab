@@ -182,13 +182,6 @@
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
             </div>
-            <div id="clearRetainedTextConfirmArea" class="clear-retained-text-confirm-area hidden">
-                <div class="clear-retained-text-confirm-desc">__MSG_clearRetainedTextConfirmDesc__</div>
-                <div class="clear-retained-text-confirm-buttons">
-                    <button id="clearRetainedTextConfirmBtn" class="btn btn-danger">__MSG_clearRetainedTextConfirm__</button>
-                    <button id="clearRetainedTextCancelBtn" class="btn btn-secondary">__MSG_clearRetainedTextCancel__</button>
-                </div>
-            </div>
 
             <div class="setting-divider"></div>
 
@@ -213,6 +206,7 @@
                         <option value="google">Google</option>
                         <option value="bing">Bing</option>
                         <option value="duckduckgo">DuckDuckGo</option>
+                        <option value="baidu">Baidu</option>
                         <option value="custom">__MSG_searchEngineCustom__</option>
                     </select>
                 </div>
@@ -246,9 +240,30 @@
                     <span class="setting-desc">__MSG_resetSettingsDesc__</span>
                 </div>
             </div>
-            <div id="resetSettingsConfirmArea" class="reset-settings-confirm-area hidden">
-                <div class="reset-settings-confirm-desc">__MSG_resetSettingsConfirmDesc__</div>
+        </div>
+    </div>
+
+    <!-- Overlay backdrop -->
+    <div id="confirmOverlay" class="confirm-overlay hidden"></div>
+
+    <!-- Clear retained text confirm dialog -->
+    <div id="clearRetainedTextConfirmArea" class="confirm-dialog hidden">
+        <div class="confirm-dialog-content">
+            <div class="confirm-dialog-desc">__MSG_clearRetainedTextConfirmDesc__</div>
+            <div class="confirm-dialog-buttons">
+                <button id="clearRetainedTextConfirmBtn" class="btn btn-danger">__MSG_clearRetainedTextConfirm__</button>
+                <button id="clearRetainedTextCancelBtn" class="btn btn-secondary">__MSG_CancelButton__</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset settings confirm dialog -->
+    <div id="resetSettingsConfirmArea" class="confirm-dialog hidden">
+        <div class="confirm-dialog-content">
+            <div class="confirm-dialog-desc">__MSG_resetSettingsConfirmDesc__</div>
+            <div class="confirm-dialog-buttons">
                 <button id="resetSettingsConfirmBtn" class="btn btn-danger">__MSG_resetSettingsConfirm__</button>
+                <button id="resetSettingsCancelBtn" class="btn btn-secondary">__MSG_CancelButton__</button>
             </div>
         </div>
     </div>
