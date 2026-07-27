@@ -2,17 +2,17 @@
   "actionOpenSidepanel": {
     "message": "Open Extension Side Panel"
   },
+  "CancelButton": {
+    "message": "Cancel"
+  },
   "clearRetainedText": {
     "message": "Clear staged content"
-  },
-  "clearRetainedTextCancel": {
-    "message": "Cancel"
   },
   "clearRetainedTextConfirm": {
     "message": "Confirm"
   },
   "clearRetainedTextConfirmDesc": {
-    "message": "Are you sure you want to clear the staged content? This action cannot be undone."
+    "message": "Are you sure you want to clear the staged content?"
   },
   "clearText": {
     "message": "Clear"
@@ -54,7 +54,7 @@
     "message": "Send Content to Tab"
   },
   "fileAccessWarning": {
-    "message": "To allow this extension to access local files, enable **Allow access to file URLs** in <code>chrome://extensions</code> for this extension."
+    "message": "To allow this extension to access local files, enable **Allow access to file URLs** in **chrome://extensions** for this extension."
   },
   "getCurrentUrl": {
     "message": "Get current URL"
@@ -63,7 +63,7 @@
     "message": "About This Extension"
   },
   "helpContextMenuDesc1": {
-    "message": "For some reasons, it is not possible to design a single context menu option that can open/close the side panel with one click, so it has to be split into two separate options. You can go to Settings and disable the **Enable close side panel menu** option to keep only the open side panel menu. We apologize for this inconvenience."
+    "message": "Due to limitations in the current extension API surface, a unified toggle entry for the side panel is not available. Consequently, the functionality is exposed via two separate menu commands—Open Side Panel and Close Side Panel."
   },
   "helpContextMenuDesc2": {
     "message": "Additionally, after clicking any context menu option that sends content to the side panel, you need to manually open the side panel to view the content. **Unsupported pages may not be able to use the context menu options for sending content to the side panel or new incognito tab.**"
@@ -219,7 +219,7 @@
     "message": "Enable text staging"
   },
   "settingsRetainTextDesc": {
-    "message": "Show buttons to save and load text content in the side panel. If disabled, the staged content will be cleared."
+    "message": "Show buttons to save and load text content in the side panel."
   },
   "sidePanelHelp": {
     "message": "Help"
@@ -237,12 +237,12 @@
     "message": "Settings"
   },
   "stagedTextLoaded": {
-    "message": "Staged text has been loaded"
+    "message": "Staged text loaded"
   },
   "stagedTextSaved": {
-    "message": "Text has been saved"
+    "message": "Text saved"
   },
   "textCopied": {
-    "message": "Text has been copied"
+    "message": "Text copied"
   }
 }
