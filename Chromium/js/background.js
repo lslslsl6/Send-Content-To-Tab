@@ -46,7 +46,7 @@ function isPageSupported(url) {
     }
     // Fallback check
     if (!url || typeof url !== 'string') return false;
-    const unsupportedPrefixes = ['chrome', 'devtools', 'edge', 'about:', 'extension', 'view-source:'];
+    const unsupportedPrefixes = ['chrome', 'devtools', 'edge', 'about:', 'extension', 'ftp', 'view-source:'];
     const unsupportedUrls = ['https://addons.mozilla.org', 'https://chromewebstore.google.com', 'https://microsoftedge.microsoft.com/addons'];
     for (const prefix of unsupportedPrefixes) {
         if (url.startsWith(prefix)) return false;
@@ -87,9 +87,9 @@ async function createContextMenus() {
 
         const { closeSidepanelEnabled } = await chrome.storage.local.get('closeSidepanelEnabled');
 
-        // Default to enabled if not set
+        // Default to disabled if not set
         if (closeSidepanelEnabled === undefined) {
-            await chrome.storage.local.set({ closeSidepanelEnabled: true });
+            await chrome.storage.local.set({ closeSidepanelEnabled: false });
         }
 
         // First items: Open side panel (always visible, no page restriction)
