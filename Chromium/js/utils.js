@@ -23,6 +23,7 @@ const PageSupportChecker = {
         'edge',
         'about:',
         'extension',
+        'ftp',
         'view-source:'
     ],
 
