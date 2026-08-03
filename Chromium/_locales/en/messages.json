@@ -105,7 +105,7 @@
     "message": "You need to enable the **Enable incognito features** option in Settings to use incognito-related features."
   },
   "helpIncognitoTitle": {
-    "message": "About opening in an incognito tab"
+    "message": "About opening in new incognito tab feature"
   },
   "helpPageTitle": {
     "message": "User Guide - Send Content to Tab"
@@ -204,13 +204,13 @@
     "message": "Enable context menu"
   },
   "settingsEnableContextMenuDesc": {
-    "message": "Show context menu items to send selected text, links, or page URLs to the side panel or incognito window."
+    "message": "Show context menu items about sending to the side panel or new incognito tab, etc."
   },
   "settingsIncognitoEnabled": {
     "message": "Enable incognito features"
   },
   "settingsIncognitoEnabledDesc": {
-    "message": "Show the incognito button in the side panel and the 'Send selected text to new incognito tab' option in the context menu."
+    "message": "Enable incognito related features in the side panel and context menu."
   },
   "settingsResetSuccess": {
     "message": "All settings have been reset to defaults"
