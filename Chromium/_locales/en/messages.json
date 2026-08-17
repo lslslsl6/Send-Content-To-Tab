@@ -6,13 +6,13 @@
     "message": "Cancel"
   },
   "clearRetainedText": {
-    "message": "Clear staged content"
+    "message": "Clear staged text"
   },
   "clearRetainedTextConfirm": {
     "message": "Confirm"
   },
   "clearRetainedTextConfirmDesc": {
-    "message": "Are you sure you want to clear the staged content?"
+    "message": "Are you sure you want to clear the staged text?"
   },
   "clearText": {
     "message": "Clear"
@@ -45,7 +45,7 @@
     "message": "Current page URL has been loaded"
   },
   "emptyTextError": {
-    "message": "Please enter text"
+    "message": "Please enter text first"
   },
   "extDescription": {
     "message": "Send web page text or link content to the side panel, edit it, and open it in a new tab or incognito tab."
@@ -141,10 +141,10 @@
     "message": "Are you sure you want to reset all settings? This action cannot be undone."
   },
   "resetSettingsDesc": {
-    "message": "Reset all settings to their default values."
+    "message": "Reset all settings to their default values, and all staged text will be cleared at the same time."
   },
   "retainedTextCleared": {
-    "message": "Staged content has been cleared"
+    "message": "Staged text has been cleared"
   },
   "save": {
     "message": "Save"
@@ -210,7 +210,7 @@
     "message": "Enable incognito features"
   },
   "settingsIncognitoEnabledDesc": {
-    "message": "Enable incognito related features in the side panel and context menu."
+    "message": "Show incognito related features in the side panel and context menu."
   },
   "settingsResetSuccess": {
     "message": "All settings have been reset to defaults"
@@ -219,7 +219,7 @@
     "message": "Enable text staging"
   },
   "settingsRetainTextDesc": {
-    "message": "Show buttons to save and load text content in the side panel."
+    "message": "Show buttons related to the staged text below the text box."
   },
   "sidePanelHelp": {
     "message": "Help"
@@ -237,12 +237,12 @@
     "message": "Settings"
   },
   "stagedTextLoaded": {
-    "message": "Staged text loaded"
+    "message": "Staged text has been loaded"
   },
   "stagedTextSaved": {
-    "message": "Text saved"
+    "message": "Staged text has been saved"
   },
   "textCopied": {
-    "message": "Text copied"
+    "message": "Text has been copied"
   }
 }
