@@ -333,6 +333,10 @@ async function initSearchEngineSettings() {
     if (saveCustomSearchUrlBtn) {
         saveCustomSearchUrlBtn.disabled = true;
     }
+    // Clear the custom search URL input
+    if (customSearchEngineInput) {
+        customSearchEngineInput.value = '';
+    }
     // Show "load saved URL" link if there's a saved custom URL
     updateSavedUrlLinkVisibility();
 }
@@ -616,6 +620,8 @@ if (resetSettingsConfirmBtn) {
             if (retainTextToggle) retainTextToggle.checked = false;
             if (incognitoToggle) incognitoToggle.checked = false;
             retainTextEnabled = false;
+            // Reset search engine settings to defaults (toggle off, dropdown back to default)
+            await initSearchEngineSettings();
             // Update UI states
             updateCloseSidepanelMenuItemState();
             updateIncognitoButtonVisibility();
