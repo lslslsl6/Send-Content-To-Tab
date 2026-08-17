@@ -1,9 +1,9 @@
 {
     "author": "lslslsl6",
     "name": "__MSG_extName__",
-    "version": "2",
+    "version": "1.0",
     "manifest_version": 3,
-    "minimum_chrome_version": "146",
+    "minimum_chrome_version": "148",
     "description": "__MSG_extDescription__",
     "default_locale": "en",
     "background": {
