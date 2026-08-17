@@ -74,10 +74,11 @@ async function createContextMenus() {
     try {
         await removeAllContextMenus();
 
-        const { contextMenuEnabled } = await chrome.storage.local.get('contextMenuEnabled');
+        let { contextMenuEnabled } = await chrome.storage.local.get('contextMenuEnabled');
 
         // Default to enabled if not set
         if (contextMenuEnabled === undefined) {
+            contextMenuEnabled = true;
             await chrome.storage.local.set({ contextMenuEnabled: true });
         }
 
@@ -85,10 +86,11 @@ async function createContextMenus() {
             return;
         }
 
-        const { closeSidepanelEnabled } = await chrome.storage.local.get('closeSidepanelEnabled');
+        let { closeSidepanelEnabled } = await chrome.storage.local.get('closeSidepanelEnabled');
 
         // Default to disabled if not set
         if (closeSidepanelEnabled === undefined) {
+            closeSidepanelEnabled = false;
             await chrome.storage.local.set({ closeSidepanelEnabled: false });
         }
 
@@ -96,7 +98,7 @@ async function createContextMenus() {
         chrome.contextMenus.create({
             id: CONTEXT_MENU_IDS.OPEN_SIDEPANEL,
             title: chrome.i18n.getMessage('contextMenuOpenSidepanel'),
-            contexts: ['all'],
+            contexts: ['all', 'tab'],
             documentUrlPatterns: ['<all_urls>']
         });
 
@@ -105,7 +107,7 @@ async function createContextMenus() {
             chrome.contextMenus.create({
                 id: CONTEXT_MENU_IDS.CLOSE_SIDEPANEL,
                 title: chrome.i18n.getMessage('contextMenuCloseSidepanel'),
-                contexts: ['all'],
+                contexts: ['all', 'tab'],
                 documentUrlPatterns: ['<all_urls>']
             });
         }
@@ -115,7 +117,7 @@ async function createContextMenus() {
         chrome.contextMenus.create({
             id: 'separator-1',
             type: 'separator',
-            contexts: ['all'],
+            contexts: ['all', 'tab'],
             documentUrlPatterns: ['<all_urls>']
         });
 
@@ -123,7 +125,7 @@ async function createContextMenus() {
         chrome.contextMenus.create({
             id: 'placeholder-manual-open',
             title: chrome.i18n.getMessage('contextMenuOpenSidePanelManually'),
-            contexts: ['all'],
+            contexts: ['all', 'tab'],
             documentUrlPatterns: ['<all_urls>'],
             enabled: false
         });
@@ -132,7 +134,7 @@ async function createContextMenus() {
         chrome.contextMenus.create({
             id: CONTEXT_MENU_IDS.SEND_CURRENT_PAGE_TO_SIDEPANEL,
             title: chrome.i18n.getMessage('contextMenuSendCurrentPageToSidepanel'),
-            contexts: ['all'],
+            contexts: ['all', 'tab'],
             documentUrlPatterns: ['<all_urls>']
         });
 
@@ -173,7 +175,14 @@ async function createContextMenus() {
         });
 
         // Send selected text to incognito tab (only on supported pages)
-        const { incognitoEnabled } = await chrome.storage.local.get('incognitoEnabled');
+        let { incognitoEnabled } = await chrome.storage.local.get('incognitoEnabled');
+
+        // Default to disabled if not set
+        if (incognitoEnabled === undefined) {
+            incognitoEnabled = false;
+            await chrome.storage.local.set({ incognitoEnabled: false });
+        }
+
         if (incognitoEnabled === true) {
             chrome.contextMenus.create({
                 id: CONTEXT_MENU_IDS.SEND_TO_INCOGNITO,
@@ -671,6 +680,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     const { retainTextEnabled } = await chrome.storage.local.get('retainTextEnabled');
     if (retainTextEnabled === undefined) {
         await chrome.storage.local.set({ retainTextEnabled: false });
+    }
+
+    // Default closeSidepanelEnabled to false (opt-in feature)
+    const { closeSidepanelEnabled } = await chrome.storage.local.get('closeSidepanelEnabled');
+    if (closeSidepanelEnabled === undefined) {
+        await chrome.storage.local.set({ closeSidepanelEnabled: false });
     }
 
     // Default incognitoEnabled to false (opt-in feature)
