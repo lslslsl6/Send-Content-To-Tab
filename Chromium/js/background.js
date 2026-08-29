@@ -22,6 +22,7 @@ const CONTEXT_MENU_IDS = {
     SEND_CURRENT_PAGE_TO_SIDEPANEL: 'send-current-page-to-sidepanel',
     SEND_TO_SIDEPANEL: 'send-to-sidepanel',
     SEND_LINK_TO_SIDEPANEL: 'send-link-to-sidepanel',
+    SEND_TO_NEW_WINDOW: 'send-to-new-window',
     SEND_TO_INCOGNITO: 'send-to-incognito'
 };
 
@@ -174,6 +175,24 @@ async function createContextMenus() {
             documentUrlPatterns: ['<all_urls>']
         });
 
+        // Send selected text to new window (only if enabled)
+        let { newWindowEnabled } = await chrome.storage.local.get('newWindowEnabled');
+
+        // Default to disabled if not set
+        if (newWindowEnabled === undefined) {
+            newWindowEnabled = false;
+            await chrome.storage.local.set({ newWindowEnabled: false });
+        }
+
+        if (newWindowEnabled === true) {
+            chrome.contextMenus.create({
+                id: CONTEXT_MENU_IDS.SEND_TO_NEW_WINDOW,
+                title: chrome.i18n.getMessage('contextMenuSendToNewWindow'),
+                contexts: ['selection'],
+                documentUrlPatterns: selectionPatterns
+            });
+        }
+
         // Send selected text to incognito tab (only on supported pages)
         let { incognitoEnabled } = await chrome.storage.local.get('incognitoEnabled');
 
@@ -273,6 +292,10 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         if (info.selectionText) {
             await navigateToTextInIncognito(info.selectionText);
         }
+    } else if (menuItemId === CONTEXT_MENU_IDS.SEND_TO_NEW_WINDOW) {
+        if (info.selectionText) {
+            await navigateToTextInNewWindow(info.selectionText);
+        }
     }
 });
 
@@ -326,6 +349,38 @@ async function navigateToTextInIncognito(text) {
         }
     } catch (e) {
         console.error('Failed to navigate in incognito:', e);
+    }
+}
+
+// Navigate to text in a new window (from context menu)
+// For search queries, use chrome.search API with NEW_WINDOW disposition,
+// falling back to Google search URL if it fails
+async function navigateToTextInNewWindow(text) {
+    try {
+        const trimmed = text.trim();
+        // Check if it's a URL first
+        if (isUrlLike(trimmed)) {
+            const url = buildUrlFromText(trimmed);
+            await chrome.windows.create({
+                url: url,
+                type: 'normal',
+                state: 'normal'
+            });
+        } else {
+            // It's a search query - use default search engine in a new window
+            try {
+                await searchWithDefaultEngine(trimmed, 'NEW_WINDOW');
+            } catch (e) {
+                console.error('chrome.search NEW_WINDOW failed, falling back to Google URL:', e);
+                await chrome.windows.create({
+                    url: `https://www.google.com/search?q=${encodeURIComponent(trimmed)}`,
+                    type: 'normal',
+                    state: 'normal'
+                });
+            }
+        }
+    } catch (e) {
+        console.error('Failed to navigate in new window:', e);
     }
 }
 
@@ -395,6 +450,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     if (message.action === 'openInIncognitoTab') {
         openInIncognitoTab(message.text, message.searchEngine, message.customSearchUrl).catch(e => console.error('openInIncognitoTab error:', e));
+        return false;
+    }
+
+    if (message.action === 'openInNewWindow') {
+        openInNewWindow(message.text, message.searchEngine, message.customSearchUrl).catch(e => console.error('openInNewWindow error:', e));
         return false;
     }
 
@@ -529,6 +589,11 @@ const SEARCH_ENGINES = {
     duckduckgo: {
         name: 'DuckDuckGo',
         searchUrl: 'https://duckduckgo.com/?q={searchTerms}'
+    },
+    // Chinese website
+    baidu: {
+        name: 'Baidu',
+        searchUrl: 'https://www.baidu.com/s?wd={searchTerms}'
     }
 };
 
@@ -667,6 +732,70 @@ async function openInIncognitoTab(text, searchEngine, customSearchUrl) {
     }
 }
 
+// Open text in a new window (from side panel)
+async function openInNewWindow(text, searchEngine, customSearchUrl) {
+    try {
+        const trimmed = text.trim();
+
+        if (isUrlLike(trimmed)) {
+            // It's a URL - open directly in a new window
+            const url = buildUrlFromText(trimmed);
+            await chrome.windows.create({
+                url: url,
+                type: 'normal',
+                state: 'normal'
+            });
+        } else {
+            // It's a search query - use search engine preference
+            await openSearchInNewWindow(text, searchEngine, customSearchUrl);
+        }
+    } catch (e) {
+        console.error('Failed to open in new window:', e);
+    }
+}
+
+// Open search query in a new window using specified engine
+async function openSearchInNewWindow(query, searchEngine, customSearchUrl) {
+    const trimmed = query.trim();
+
+    // Custom search engine - build URL directly
+    if (searchEngine === 'custom' && customSearchUrl) {
+        const searchUrl = customSearchUrl.replace('{searchTerms}', encodeURIComponent(trimmed));
+        await chrome.windows.create({
+            url: searchUrl,
+            type: 'normal',
+            state: 'normal'
+        });
+        return;
+    }
+
+    // Built-in engine (google/bing/duckduckgo/baidu)
+    if (searchEngine && searchEngine !== 'default') {
+        const searchUrl = getSearchUrl(searchEngine, trimmed);
+        if (searchUrl) {
+            await chrome.windows.create({
+                url: searchUrl,
+                type: 'normal',
+                state: 'normal'
+            });
+            return;
+        }
+    }
+
+    // Default engine - use chrome.search API with NEW_WINDOW disposition
+    try {
+        await searchWithDefaultEngine(trimmed, 'NEW_WINDOW');
+    } catch (e) {
+        // Fallback to Google search URL if chrome.search fails
+        console.error('chrome.search NEW_WINDOW failed, falling back to Google URL:', e);
+        await chrome.windows.create({
+            url: `https://www.google.com/search?q=${encodeURIComponent(trimmed)}`,
+            type: 'normal',
+            state: 'normal'
+        });
+    }
+}
+
 
 // Initialize on install/update
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -692,6 +821,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     const { incognitoEnabled } = await chrome.storage.local.get('incognitoEnabled');
     if (incognitoEnabled === undefined) {
         await chrome.storage.local.set({ incognitoEnabled: false });
+    }
+
+    // Default newWindowEnabled to false (opt-in feature)
+    const { newWindowEnabled } = await chrome.storage.local.get('newWindowEnabled');
+    if (newWindowEnabled === undefined) {
+        await chrome.storage.local.set({ newWindowEnabled: false });
     }
 
     // Enable click extension icon to open side panel
@@ -721,7 +856,7 @@ chrome.runtime.onStartup.addListener(async () => {
 
 // Listen for storage changes to update context menus
 chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && (changes.contextMenuEnabled || changes.closeSidepanelEnabled || changes.incognitoEnabled)) {
+    if (area === 'local' && (changes.contextMenuEnabled || changes.closeSidepanelEnabled || changes.incognitoEnabled || changes.newWindowEnabled)) {
         createContextMenus();
     }
 });
