@@ -1,16 +1,17 @@
 # Send Content to Tab
 
-A extension that sends web page text or link content to the side panel, edit it, and open it in a new tab or incognito tab.
+An extension that sends web page text or link content to the side panel for editing, then opens it in a new tab, new window, or incognito tab.
 
 ## Overview
 
-**Send Content to Tab** is a browser extension that provides a convenient side panel for quickly processing text content from web pages. Whether you need to search selected text, visit a link, grab the current page URL, or open content in an incognito window — all can be done directly from the side panel without leaving your current page.
+**Send Content to Tab** is a browser extension that provides a convenient side panel for quickly processing text content from web pages. Whether you need to search selected text, visit a link, grab the current page URL, or open content in a new window or incognito window — all can be done directly from the side panel without leaving your current page.
 
 # Features
 
 - **Send to side panel** — Send selected text, links, or current page URL to the side panel via context menu or keyboard shortcuts.
 - **Edit & process** — Edit text, clear content, or get the current page URL directly in the side panel.
-- **Open in tab** — Open processed content in a new tab or incognito tab. Smart URL detection: URLs open directly, other text is searched via search engine.
+- **Open in tab** — Open processed content in a new tab, new window, or incognito tab. Smart URL detection: URLs open directly, other text is searched via search engine.
+- **Context menu** — Send selected text directly to a new window or incognito tab from the right-click menu.
 - **Text staging** — Optionally save and load text content within the side panel.
 
 ## Permissions
