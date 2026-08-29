@@ -54,7 +54,7 @@
     "message": "Send web page text or link content to the side panel, edit it, and open it in a new tab or incognito tab."
   },
   "extName": {
-    "message": "Send Content to Tab"
+    "message": "Send Content To Tab"
   },
   "fileAccessWarning": {
     "message": "To allow this extension to access local files, enable **Allow access to file URLs** in **chrome://extensions** for this extension."
@@ -96,7 +96,7 @@
     "message": "Features"
   },
   "helpFooter": {
-    "message": "Send Content to Tab - An open source extension"
+    "message": "Send Content To Tab - An open source extension"
   },
   "helpFrequentlyAskedQuestions": {
     "message": "Frequently Asked Questions (FAQ)"
