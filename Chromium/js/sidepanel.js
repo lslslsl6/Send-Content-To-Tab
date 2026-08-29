@@ -85,6 +85,7 @@ function localizePage() {
 // DOM Elements
 const textInput = document.getElementById('textInput');
 const openTabBtn = document.getElementById('openTabBtn');
+const openNewWindowBtn = document.getElementById('openNewWindowBtn');
 const openIncognitoBtn = document.getElementById('openIncognitoBtn');
 const helpBtn = document.getElementById('helpBtn');
 const helpPanel = document.getElementById('helpPanel');
@@ -97,6 +98,7 @@ const closeSidepanelMenuToggle = document.getElementById('closeSidepanelMenuTogg
 const closeSidepanelMenuItem = document.getElementById('closeSidepanelMenuItem');
 const retainTextToggle = document.getElementById('retainTextToggle');
 const incognitoToggle = document.getElementById('incognitoToggle');
+const newWindowToggle = document.getElementById('newWindowToggle');
 const resetSettingsItem = document.getElementById('resetSettingsItem');
 const resetSettingsConfirmArea = document.getElementById('resetSettingsConfirmArea');
 const resetSettingsConfirmBtn = document.getElementById('resetSettingsConfirmBtn');
@@ -181,9 +183,37 @@ async function updateStagedButtons() {
     }
 }
 
+// Populate settings footer with extension name and version from manifest
+function initSettingsFooter() {
+    const nameEl = document.getElementById('settingsFooterName');
+    const versionEl = document.getElementById('settingsFooterVersion');
+    if (!nameEl && !versionEl) return;
+
+    try {
+        const manifest = chrome.runtime.getManifest();
+        let name = manifest.name || '';
+        // Resolve __MSG_ placeholders if present (e.g. "__MSG_extName__")
+        const match = name.match(/^__MSG_(\w+)__$/);
+        if (match) {
+            name = getMessage(match[1]);
+        }
+        if (nameEl) {
+            nameEl.textContent = name;
+        }
+        if (versionEl) {
+            versionEl.textContent = getMessage('versionLabel') + (manifest.version || '');
+        }
+    } catch (e) {
+        console.error('Failed to load extension info for footer:', e);
+    }
+}
+
 // Initialize
 async function init() {
     localizePage();
+
+    // Populate settings footer (extension name & version)
+    initSettingsFooter();
 
     // Detect if side panel is open in an incognito window
     try {
@@ -239,6 +269,19 @@ async function init() {
 
     // Update incognito button visibility based on setting
     updateIncognitoButtonVisibility();
+
+    // Load new window enabled setting
+    try {
+        const { newWindowEnabled } = await chrome.storage.local.get('newWindowEnabled');
+        if (newWindowToggle) {
+            newWindowToggle.checked = newWindowEnabled === true;
+        }
+    } catch (e) {
+        console.error('Failed to load new window setting:', e);
+    }
+
+    // Update new window button visibility based on setting
+    updateNewWindowButtonVisibility();
 
     // Load retain text setting
 
@@ -557,6 +600,18 @@ function updateIncognitoButtonVisibility() {
     }
 }
 
+// Update new window button visibility based on newWindowEnabled setting
+function updateNewWindowButtonVisibility() {
+    if (!openNewWindowBtn) return;
+    // Check if new window feature is enabled
+    const newWindowEnabled = newWindowToggle ? newWindowToggle.checked : false;
+    if (newWindowEnabled) {
+        openNewWindowBtn.classList.remove('hidden');
+    } else {
+        openNewWindowBtn.classList.add('hidden');
+    }
+}
+
 // Incognito toggle - auto save
 if (incognitoToggle) {
     incognitoToggle.addEventListener('change', async () => {
@@ -568,6 +623,20 @@ if (incognitoToggle) {
         }
         // Update incognito button visibility
         updateIncognitoButtonVisibility();
+    });
+}
+
+// New window toggle - auto save
+if (newWindowToggle) {
+    newWindowToggle.addEventListener('change', async () => {
+        const enabled = newWindowToggle.checked;
+        try {
+            await chrome.storage.local.set({ newWindowEnabled: enabled });
+        } catch (e) {
+            console.error('Failed to save new window setting:', e);
+        }
+        // Update new window button visibility
+        updateNewWindowButtonVisibility();
     });
 }
 
@@ -612,19 +681,22 @@ if (resetSettingsConfirmBtn) {
                 contextMenuEnabled: true,
                 closeSidepanelEnabled: false,
                 retainTextEnabled: false,
-                incognitoEnabled: false
+                incognitoEnabled: false,
+                newWindowEnabled: false
             });
             // Reload settings in UI
             if (contextMenuToggle) contextMenuToggle.checked = true;
             if (closeSidepanelMenuToggle) closeSidepanelMenuToggle.checked = false;
             if (retainTextToggle) retainTextToggle.checked = false;
             if (incognitoToggle) incognitoToggle.checked = false;
+            if (newWindowToggle) newWindowToggle.checked = false;
             retainTextEnabled = false;
             // Reset search engine settings to defaults (toggle off, dropdown back to default)
             await initSearchEngineSettings();
             // Update UI states
             updateCloseSidepanelMenuItemState();
             updateIncognitoButtonVisibility();
+            updateNewWindowButtonVisibility();
             await updateStagedButtons();
             // Update clear retained text item visibility (retainedText was cleared)
             await updateClearRetainedTextItemVisibility();
@@ -696,6 +768,32 @@ openTabBtn.addEventListener('click', async () => {
         console.error('Failed to open in new tab:', e);
     }
 });
+
+// Open in new window (with search engine preference if enabled)
+if (openNewWindowBtn) {
+    openNewWindowBtn.addEventListener('click', async () => {
+        const text = textInput.value.trim();
+        if (!validateText(text)) return;
+
+        const message = {
+            action: 'openInNewWindow',
+            text: text
+        };
+
+        // Only pass search engine params if the master toggle is enabled
+        if (searchEngineEnabled) {
+            message.searchEngine = currentSearchEngine;
+            message.customSearchUrl = currentCustomSearchUrl;
+        }
+
+        try {
+            await chrome.runtime.sendMessage(message);
+            showStatusMessage(getMessage('newWindowOpened'));
+        } catch (e) {
+            console.error('Failed to open in new window:', e);
+        }
+    });
+}
 
 // Open in incognito tab (with search engine preference if enabled)
 openIncognitoBtn.addEventListener('click', async () => {

@@ -85,6 +85,16 @@
                     <span>__MSG_sidePanelOpenTab__</span>
                 </button>
 
+                <button id="openNewWindowBtn" class="btn btn-secondary hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    <span>__MSG_sidePanelOpenNewWindow__</span>
+                </button>
+
                 <button id="openIncognitoBtn" class="btn btn-secondary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -129,6 +139,7 @@
             </button>
         </div>
         <div class="settings-content">
+            <div class="settings-section-title">__MSG_settingsSectionOpening__</div>
             <label class="setting-item" id="incognitoToggleItem">
                 <div class="setting-text">
                     <span class="setting-label">__MSG_settingsIncognitoEnabled__</span>
@@ -139,9 +150,20 @@
                     <span class="toggle-slider"></span>
                 </span>
             </label>
+            <label class="setting-item" id="newWindowToggleItem">
+                <div class="setting-text">
+                    <span class="setting-label">__MSG_settingsNewWindowEnabled__</span>
+                    <span class="setting-desc">__MSG_settingsNewWindowEnabledDesc__</span>
+                </div>
+                <span class="toggle">
+                    <input type="checkbox" id="newWindowToggle">
+                    <span class="toggle-slider"></span>
+                </span>
+            </label>
 
             <div class="setting-divider"></div>
 
+            <div class="settings-section-title">__MSG_settingsSectionContextMenu__</div>
             <label class="setting-item" id="contextMenuItem">
                 <div class="setting-text">
                     <span class="setting-label">__MSG_settingsEnableContextMenu__</span>
@@ -162,6 +184,10 @@
                     <span class="toggle-slider"></span>
                 </span>
             </label>
+
+            <div class="setting-divider"></div>
+
+            <div class="settings-section-title">__MSG_settingsSectionText__</div>
             <label class="setting-item" id="retainTextItem">
                 <div class="setting-text">
                     <span class="setting-label">__MSG_settingsRetainText__</span>
@@ -185,6 +211,7 @@
 
             <div class="setting-divider"></div>
 
+            <div class="settings-section-title">__MSG_settingsSectionSearchEngine__</div>
             <label class="setting-item" id="searchEngineToggleItem">
                 <div class="setting-text">
                     <span class="setting-label">__MSG_searchEngineSettings__</span>
@@ -217,8 +244,10 @@
                         <span class="setting-desc">__MSG_searchEngineCustomUrlDesc__</span>
                     </div>
                     <div class="custom-search-url-row">
-                        <input type="text" id="customSearchEngineInput" class="setting-input" placeholder="e.g.: https://example.com/search?q={searchTerms}" autocomplete="off">
-                        <button id="saveCustomSearchUrlBtn" class="btn btn-secondary btn-save-url" disabled>__MSG_save__</button>
+                        <input type="text" id="customSearchEngineInput" class="setting-input"
+                            placeholder="e.g.: https://example.com/search?q={searchTerms}" autocomplete="off">
+                        <button id="saveCustomSearchUrlBtn" class="btn btn-secondary btn-save-url"
+                            disabled>__MSG_save__</button>
                     </div>
                 </div>
                 <div id="savedUrlLinkRow" class="saved-url-link-row hidden">
@@ -234,11 +263,19 @@
 
             <div class="setting-divider"></div>
 
+            <div class="settings-section-title">__MSG_settingsSectionOther__</div>
             <div class="setting-item" id="resetSettingsItem">
                 <div class="setting-text">
                     <span class="setting-label">__MSG_resetSettings__</span>
                     <span class="setting-desc">__MSG_resetSettingsDesc__</span>
                 </div>
+            </div>
+
+            <div class="setting-divider"></div>
+
+            <div class="settings-footer">
+                <div id="settingsFooterName" class="settings-footer-name"></div>
+                <div id="settingsFooterVersion" class="settings-footer-version"></div>
             </div>
         </div>
     </div>
@@ -251,7 +288,8 @@
         <div class="confirm-dialog-content">
             <div class="confirm-dialog-desc">__MSG_clearRetainedTextConfirmDesc__</div>
             <div class="confirm-dialog-buttons">
-                <button id="clearRetainedTextConfirmBtn" class="btn btn-danger">__MSG_clearRetainedTextConfirm__</button>
+                <button id="clearRetainedTextConfirmBtn"
+                    class="btn btn-danger">__MSG_clearRetainedTextConfirm__</button>
                 <button id="clearRetainedTextCancelBtn" class="btn btn-secondary">__MSG_CancelButton__</button>
             </div>
         </div>

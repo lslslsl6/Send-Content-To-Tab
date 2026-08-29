@@ -514,6 +514,42 @@ code {
     margin: 8px 0;
 }
 
+/* Settings category title */
+.settings-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    padding: 12px 0 4px 0;
+}
+
+.settings-section-title + .setting-item,
+.settings-section-title + .setting-item-sub {
+    padding-top: 4px;
+}
+
+/* Settings footer (extension name & version) */
+.settings-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 0 4px 0;
+    flex-shrink: 0;
+}
+
+.settings-footer-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.settings-footer-version {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
 /* Setting section header */
 .setting-section-header {
     display: flex;
