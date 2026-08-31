@@ -57,7 +57,7 @@
     "message": "Send Content To Tab"
   },
   "fileAccessWarning": {
-    "message": "To allow this extension to access local files, enable **Allow access to file URLs** in **chrome://extensions** for this extension."
+    "message": "To allow this extension to access local files, enable **Allow access to file URLs** in <code>chrome://extensions</code> for this extension."
   },
   "getCurrentUrl": {
     "message": "Get Current URL"
@@ -250,6 +250,9 @@
   },
   "settingsSectionText": {
     "message": "Text Box"
+  },
+  "sidePanelClose": {
+    "message": "Close"
   },
   "sidePanelHelp": {
     "message": "Help"
