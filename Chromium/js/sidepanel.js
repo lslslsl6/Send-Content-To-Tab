@@ -41,12 +41,11 @@ function localizePage() {
         }
     });
 
-    // Only localize title attributes for helpBtn and settingsBtn (keep tooltips for these two)
     document.querySelectorAll('[title]').forEach(el => {
         const title = el.getAttribute('title');
         if (title && title.startsWith('__MSG_')) {
-            // Only set tooltip for help button and settings button
-            if (el.id === 'helpBtn' || el.id === 'settingsBtn') {
+            if (el.id === 'helpBtn' || el.id === 'settingsBtn' ||
+                el.id === 'closeHelpBtn' || el.id === 'closeSettingsBtn') {
                 const msgName = title.replace('__MSG_', '').replace('__', '');
                 el.setAttribute('title', getMessage(msgName));
             } else {
