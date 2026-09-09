@@ -20,6 +20,7 @@ const CONTEXT_MENU_IDS = {
     OPEN_SIDEPANEL: 'open-sidepanel',
     CLOSE_SIDEPANEL: 'close-sidepanel',
     SEND_CURRENT_PAGE_TO_SIDEPANEL: 'send-current-page-to-sidepanel',
+    SEND_CURRENT_PAGE_TO_INCOGNITO: 'send-current-page-to-incognito',
     SEND_TO_SIDEPANEL: 'send-to-sidepanel',
     SEND_LINK_TO_SIDEPANEL: 'send-link-to-sidepanel',
     SEND_TO_NEW_WINDOW: 'send-to-new-window',
@@ -122,7 +123,37 @@ async function createContextMenus() {
             documentUrlPatterns: ['<all_urls>']
         });
 
-        // Placeholder menu item (not clickable) to indicate that the following options require manually opening the side panel
+        // Send current page URL to new incognito tab (always visible globally regardless of page support;
+        // shown only when the "Enable Incognito Features" setting in the side panel is enabled)
+        let { incognitoEnabled } = await chrome.storage.local.get('incognitoEnabled');
+
+        // Default to disabled if not set
+        if (incognitoEnabled === undefined) {
+            incognitoEnabled = false;
+            await chrome.storage.local.set({ incognitoEnabled: false });
+        }
+
+        if (incognitoEnabled === true) {
+            chrome.contextMenus.create({
+                id: CONTEXT_MENU_IDS.SEND_CURRENT_PAGE_TO_INCOGNITO,
+                title: chrome.i18n.getMessage('contextMenuSendCurrentPageToIncognito'),
+                contexts: ['all', 'tab'],
+                documentUrlPatterns: ['<all_urls>']
+            });
+
+            // Separator between the current-page incognito item and the send-to-side-panel group below
+            chrome.contextMenus.create({
+                id: 'separator-2',
+                type: 'separator',
+                contexts: ['all', 'tab'],
+                documentUrlPatterns: ['<all_urls>']
+            });
+        }
+
+        // Placeholder menu item (not clickable) to indicate that the following options require manually opening the side panel.
+        // It belongs to the "send to side panel" group (SEND_CURRENT_PAGE_TO_SIDEPANEL, SEND_TO_SIDEPANEL,
+        // SEND_LINK_TO_SIDEPANEL), so it uses the same contexts/patterns as that group and stays hidden
+        // whenever all of those send-to-side-panel options are hidden.
         chrome.contextMenus.create({
             id: 'placeholder-manual-open',
             title: chrome.i18n.getMessage('contextMenuOpenSidePanelManually'),
@@ -131,7 +162,7 @@ async function createContextMenus() {
             enabled: false
         });
 
-        // Send current page URL to side panel (always visible globally)
+        // Send current page URL to side panel (always visible globally, no page support restriction)
         chrome.contextMenus.create({
             id: CONTEXT_MENU_IDS.SEND_CURRENT_PAGE_TO_SIDEPANEL,
             title: chrome.i18n.getMessage('contextMenuSendCurrentPageToSidepanel'),
@@ -167,14 +198,6 @@ async function createContextMenus() {
             documentUrlPatterns: linkPatterns
         });
 
-        // Separator
-        chrome.contextMenus.create({
-            id: 'separator-2',
-            type: 'separator',
-            contexts: ['all'],
-            documentUrlPatterns: ['<all_urls>']
-        });
-
         // Send selected text to new window (only if enabled)
         let { newWindowEnabled } = await chrome.storage.local.get('newWindowEnabled');
 
@@ -182,6 +205,18 @@ async function createContextMenus() {
         if (newWindowEnabled === undefined) {
             newWindowEnabled = false;
             await chrome.storage.local.set({ newWindowEnabled: false });
+        }
+
+        // Separator between the send-to-side-panel group and the new-window/incognito group below.
+        // It is created only when at least one of those opening features is enabled and is restricted to
+        // the same selection context as its group, so it never appears as a dangling separator.
+        if (newWindowEnabled === true || incognitoEnabled === true) {
+            chrome.contextMenus.create({
+                id: 'separator-3',
+                type: 'separator',
+                contexts: ['selection'],
+                documentUrlPatterns: selectionPatterns
+            });
         }
 
         if (newWindowEnabled === true) {
@@ -193,15 +228,7 @@ async function createContextMenus() {
             });
         }
 
-        // Send selected text to incognito tab (only on supported pages)
-        let { incognitoEnabled } = await chrome.storage.local.get('incognitoEnabled');
-
-        // Default to disabled if not set
-        if (incognitoEnabled === undefined) {
-            incognitoEnabled = false;
-            await chrome.storage.local.set({ incognitoEnabled: false });
-        }
-
+        // Send selected text to incognito tab (only on supported pages; gated by the same incognito feature toggle above)
         if (incognitoEnabled === true) {
             chrome.contextMenus.create({
                 id: CONTEXT_MENU_IDS.SEND_TO_INCOGNITO,
@@ -250,6 +277,18 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
                 await chrome.sidePanel.open({ windowId: tab.windowId });
             } catch (e) {
                 console.warn('send-content-to-sidepanel: sidePanel.open requires a user gesture. The text has been saved. Please click the extension icon or use the context menu to open the side panel.');
+            }
+        }
+        return;
+    }
+
+    // Send current page URL to a new incognito tab - always works regardless of page support (URL is extracted via tabs API)
+    if (menuItemId === CONTEXT_MENU_IDS.SEND_CURRENT_PAGE_TO_INCOGNITO) {
+        if (pageUrl) {
+            try {
+                await openUrlInIncognito(pageUrl);
+            } catch (e) {
+                console.error('Failed to send current page URL to incognito tab:', e);
             }
         }
         return;
@@ -305,6 +344,25 @@ async function findIncognitoWindow() {
     return windows.find(w => w.incognito);
 }
 
+// Open a URL in an incognito window (reuse existing incognito window or create a new one)
+async function openUrlInIncognito(url) {
+    const incognitoWindow = await findIncognitoWindow();
+    if (incognitoWindow) {
+        await chrome.tabs.create({
+            windowId: incognitoWindow.id,
+            url: url,
+            active: true
+        });
+    } else {
+        await chrome.windows.create({
+            incognito: true,
+            url: url,
+            type: 'normal',
+            state: 'normal'
+        });
+    }
+}
+
 // Navigate to text in incognito window (reuse existing or create new)
 // For context menu, always use default search engine (chrome.search API) or Google fallback
 async function navigateToTextInIncognito(text) {
@@ -313,21 +371,7 @@ async function navigateToTextInIncognito(text) {
         // Check if it's a URL first
         if (isUrlLike(trimmed)) {
             const url = buildUrlFromText(trimmed);
-            const incognitoWindow = await findIncognitoWindow();
-            if (incognitoWindow) {
-                await chrome.tabs.create({
-                    windowId: incognitoWindow.id,
-                    url: url,
-                    active: true
-                });
-            } else {
-                await chrome.windows.create({
-                    incognito: true,
-                    url: url,
-                    type: 'normal',
-                    state: 'normal'
-                });
-            }
+            await openUrlInIncognito(url);
         } else {
             // It's a search query - use default search engine
             // chrome.search.query() doesn't support specifying a window, so always use Google URL in incognito
@@ -414,6 +458,23 @@ chrome.commands.onCommand.addListener(async (command) => {
                 await chrome.sidePanel.open({ windowId: tab.windowId });
             } catch (e) {
                 console.warn('send-current-page-to-sidepanel: sidePanel.open requires a user gesture. Please click the extension icon or use the context menu to open the side panel.');
+            }
+        }
+    } else if (command === 'send-current-page-to-incognito') {
+        // Gated by the same "Enable Incognito Features" setting used for the side panel button
+        // and context menu item (defaults to disabled)
+        const { incognitoEnabled } = await chrome.storage.local.get('incognitoEnabled');
+        if (incognitoEnabled !== true) {
+            console.warn('send-current-page-to-incognito: Incognito features are disabled. Enable the "Enable Incognito Features" toggle in the side panel settings.');
+            return;
+        }
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab && tab.url) {
+            // Send current page URL to a new incognito tab - always works regardless of page support
+            try {
+                await openUrlInIncognito(tab.url);
+            } catch (e) {
+                console.error('Failed to send current page URL to incognito tab:', e);
             }
         }
     }
@@ -708,21 +769,7 @@ async function openInIncognitoTab(text, searchEngine, customSearchUrl) {
         if (isUrlLike(trimmed)) {
             // It's a URL - open directly
             const url = buildUrlFromText(trimmed);
-            const incognitoWindow = await findIncognitoWindow();
-            if (incognitoWindow) {
-                await chrome.tabs.create({
-                    windowId: incognitoWindow.id,
-                    url: url,
-                    active: true
-                });
-            } else {
-                await chrome.windows.create({
-                    incognito: true,
-                    url: url,
-                    type: 'normal',
-                    state: 'normal'
-                });
-            }
+            await openUrlInIncognito(url);
         } else {
             // It's a search query - use openSearchInIncognitoTab
             await openSearchInIncognitoTab(text, searchEngine, customSearchUrl);
