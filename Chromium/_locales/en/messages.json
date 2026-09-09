@@ -126,7 +126,7 @@
     "message": "About the search engine"
   },
   "helpSettingsDesc": {
-    "message": "You can manage features by category in the side panel settings: enable incognito and new-window opening (non-incognito), customize context menu items, configure text staging and the search engine, and reset all settings."
+    "message": "You can manage features by category in the side panel settings: enable incognito and new-window opening (non-incognito), customize context menu items, configure text staging and the search engine."
   },
   "helpSettingsTitle": {
     "message": "Settings"
@@ -156,7 +156,7 @@
     "message": "Are you sure you want to reset all settings and clear staged text? This action cannot be undone!"
   },
   "resetSettingsDesc": {
-    "message": "Reset all settings to their default values, and all staged text will be cleared at the same time."
+    "message": "Reset all settings to defaults, and all staged text will be cleared at the same time."
   },
   "retainedTextCleared": {
     "message": "Staged text has been cleared"
@@ -237,7 +237,7 @@
     "message": "Show the features for opening content in new non-incognito window in the side panel and context menu."
   },
   "settingsResetSuccess": {
-    "message": "Settings have been reset to defaults"
+    "message": "All settings have been reset to defaults"
   },
   "settingsRetainText": {
     "message": "Enable Text Staging"
