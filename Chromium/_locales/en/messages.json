@@ -207,7 +207,7 @@
     "message": "Send Selected Text To Side Panel"
   },
   "SendCurrentPageToIncognito": {
-    "message": "Send Current Page URL To New Incognito Tab (Requires Enabling **Enable Incognito Features** Option In The Extension Settings)"
+    "message": "Send Current Page URL To New Incognito Tab (Requires Enabling “Enable Incognito Features” Option In The Extension Settings Manually)"
   },
   "SendCurrentPageToSidepanel": {
     "message": "Send Current Page URL To Side Panel"
