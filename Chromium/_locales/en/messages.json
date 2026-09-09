@@ -120,7 +120,7 @@
     "message": "User Guide - Send Content To Tab"
   },
   "helpSearchEngineDesc": {
-    "message": "By default, the search engine configured in your browser is used. You can turn on **Temporarily Enable A Custom Search Engine** in the side panel settings to choose a preferred engine; this setting only applies to the current side panel session and resets when the side panel is closed. Due to API limitations, the context menu option **Send Selected Text To New Incognito Tab / Window** always uses Google search."
+    "message": "By default, the search engine configured in your browser is used. You can turn on **Temporarily Enable Custom Search Engine** in the side panel settings to choose a preferred engine; this setting only applies to the current side panel session and resets when the side panel is closed. Due to API limitations, the context menu option **Send Selected Text To New Incognito Tab / Window** always uses Google search."
   },
   "helpSearchEngineTitle": {
     "message": "About the search engine"
@@ -195,7 +195,7 @@
     "message": "Changes to the search engine selection will persist until the side panel is closed."
   },
   "searchEngineSettings": {
-    "message": "Temporarily Enable A Custom Search Engine"
+    "message": "Temporarily Enable Custom Search Engine"
   },
   "searchEngineSettingsDesc": {
     "message": "Choose which search engine to use when opening text as a search query."
