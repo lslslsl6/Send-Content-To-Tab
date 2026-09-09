@@ -745,7 +745,7 @@ function validateText(text) {
     return true;
 }
 
-// Open in new tab (with search engine preference if enabled)
+// Open in new tab in the current window (with search engine preference if enabled)
 openTabBtn.addEventListener('click', async () => {
     const text = textInput.value.trim();
     if (!validateText(text)) return;
@@ -763,6 +763,7 @@ openTabBtn.addEventListener('click', async () => {
 
     try {
         await chrome.runtime.sendMessage(message);
+        showStatusMessage(getMessage('newTabOpened'));
     } catch (e) {
         console.error('Failed to open in new tab:', e);
     }
